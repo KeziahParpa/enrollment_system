@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/avatar_widget.dart';
-import '../models/student.dart';
+import '../widgets/dashboard_components.dart'; // IMPORT THE NEW COMPONENTS
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -27,9 +26,21 @@ class DashboardScreen extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(flex: 3, child: _buildEnrollmentChart()),
+              // Monthly Trend Chart (Extracted)
+              Expanded(
+                flex: 3,
+                child: EnrollmentTrendChart(
+                  monthlyData: MockData.monthlyEnrollment,
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(flex: 2, child: _buildProgramDistribution()),
+              // Program Distribution Chart (Extracted)
+              Expanded(
+                flex: 2,
+                child: ProgramDistributionChart(
+                  data: MockData.enrollmentByProgram,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -71,28 +82,32 @@ class DashboardScreen extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.download_rounded, color: Colors.white, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                'Export Report',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
+        _buildExportButton(),
       ],
+    );
+  }
+
+  Widget _buildExportButton() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      decoration: BoxDecoration(
+        color: AppTheme.primary,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.download_rounded, color: Colors.white, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            'Export Report',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -149,202 +164,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEnrollmentChart() {
-    final data = MockData.monthlyEnrollment;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Monthly Enrollment Trend',
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-          const SizedBox(height: 4),
-          Text('Academic Year 2024–2025',
-              style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textSecondary)),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 200,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: 200,
-                barTouchData: BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => AppTheme.primary,
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      return BarTooltipItem(
-                        '${data[group.x.toInt()]['month']}\n${rod.toY.toInt()}',
-                        GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-                      );
-                    },
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 36,
-                      getTitlesWidget: (value, meta) => Text(
-                        value.toInt().toString(),
-                        style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textSecondary),
-                      ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        final idx = value.toInt();
-                        if (idx < data.length) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              data[idx]['month'] as String,
-                              style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textSecondary),
-                            ),
-                          );
-                        }
-                        return const SizedBox();
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: AppTheme.border,
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                barGroups: data.asMap().entries.map((e) {
-                  final isHighlighted = e.value['count'] as int > 100;
-                  return BarChartGroupData(
-                    x: e.key,
-                    barRods: [
-                      BarChartRodData(
-                        toY: (e.value['count'] as int).toDouble(),
-                        color: isHighlighted ? AppTheme.primary : AppTheme.primaryLight.withOpacity(0.5),
-                        width: 16,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(4),
-                          topRight: Radius.circular(4),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgramDistribution() {
-    final programs = MockData.enrollmentByProgram;
-    final total = programs.values.fold(0, (a, b) => a + b);
-    final colors = [
-      AppTheme.primaryLight,
-      const Color(0xFF7C3AED),
-      const Color(0xFFDB2777),
-      AppTheme.success,
-      AppTheme.warning,
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Enrollment by Program',
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-          const SizedBox(height: 4),
-          Text('Current semester breakdown',
-              style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textSecondary)),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 160,
-            child: PieChart(
-              PieChartData(
-                sections: programs.entries.map((e) {
-                  final idx = programs.keys.toList().indexOf(e.key);
-                  final pct = e.value / total * 100;
-                  return PieChartSectionData(
-                    value: e.value.toDouble(),
-                    color: colors[idx % colors.length],
-                    radius: 55,
-                    title: '${pct.toStringAsFixed(0)}%',
-                    titleStyle: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  );
-                }).toList(),
-                sectionsSpace: 2,
-                centerSpaceRadius: 30,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...programs.entries.map((e) {
-            final idx = programs.keys.toList().indexOf(e.key);
-            final pct = e.value / total * 100;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: colors[idx % colors.length],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      e.key.replaceFirst('BS ', ''),
-                      style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    '${pct.toStringAsFixed(0)}%',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentStudents(List<Student> students) {
+  Widget _buildRecentStudents(List recentStudents) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -358,37 +178,62 @@ class DashboardScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Enrollments',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-              Text('View All',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.primaryLight)),
+              Text(
+                'Recent Enrollments',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              Text(
+                'View All',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.primaryLight,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          ...students.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Row(
-                  children: [
-                    AvatarWidget(initials: s.initials, colorIndex: s.avatarColorIndex),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(s.fullName,
-                              style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                          Text('${s.id} · ${s.program.replaceFirst('BS ', '')}',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary)),
-                        ],
-                      ),
+          ...recentStudents.map(
+            (s) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(
+                children: [
+                  AvatarWidget(
+                    initials: s.initials,
+                    colorIndex: s.avatarColorIndex,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.fullName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          '${s.id} · ${s.program.replaceFirst('BS ', '')}',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
-                    StatusBadge(status: s.status),
-                  ],
-                ),
-              )),
+                  ),
+                  StatusBadge(status: s.status),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -396,10 +241,34 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildPendingActions() {
     final actions = [
-      {'icon': Icons.person_add_rounded, 'color': AppTheme.primaryLight, 'bg': const Color(0xFFEFF6FF), 'title': 'New Enrollment Requests', 'count': '12 pending'},
-      {'icon': Icons.edit_document, 'color': AppTheme.warning, 'bg': const Color(0xFFFFFBEB), 'title': 'Schedule Adjustments', 'count': '5 pending'},
-      {'icon': Icons.receipt_long_rounded, 'color': const Color(0xFF7C3AED), 'bg': const Color(0xFFF5F3FF), 'title': 'Grade Submissions', 'count': '8 due today'},
-      {'icon': Icons.cancel_rounded, 'color': AppTheme.danger, 'bg': const Color(0xFFFEF2F2), 'title': 'Drop Requests', 'count': '3 pending'},
+      {
+        'icon': Icons.person_add_rounded,
+        'color': AppTheme.primaryLight,
+        'bg': const Color(0xFFEFF6FF),
+        'title': 'New Enrollment Requests',
+        'count': '12 pending',
+      },
+      {
+        'icon': Icons.edit_document,
+        'color': AppTheme.warning,
+        'bg': const Color(0xFFFFFBEB),
+        'title': 'Schedule Adjustments',
+        'count': '5 pending',
+      },
+      {
+        'icon': Icons.receipt_long_rounded,
+        'color': const Color(0xFF7C3AED),
+        'bg': const Color(0xFFF5F3FF),
+        'title': 'Grade Submissions',
+        'count': '8 due today',
+      },
+      {
+        'icon': Icons.cancel_rounded,
+        'color': AppTheme.danger,
+        'bg': const Color(0xFFFEF2F2),
+        'title': 'Drop Requests',
+        'count': '3 pending',
+      },
     ];
 
     return Container(
@@ -412,43 +281,73 @@ class DashboardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Pending Actions',
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+          Text(
+            'Pending Actions',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text('Requires your attention',
-              style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textSecondary)),
+          Text(
+            'Requires your attention',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              color: AppTheme.textSecondary,
+            ),
+          ),
           const SizedBox(height: 16),
-          ...actions.map((a) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: a['bg'] as Color,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(a['icon'] as IconData, color: a['color'] as Color, size: 18),
+          ...actions.map(
+            (a) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: a['bg'] as Color,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(a['title'] as String,
-                              style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                          Text(a['count'] as String,
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary)),
-                        ],
-                      ),
+                    child: Icon(
+                      a['icon'] as IconData,
+                      color: a['color'] as Color,
+                      size: 18,
                     ),
-                    const Icon(Icons.chevron_right_rounded, size: 18, color: AppTheme.textSecondary),
-                  ],
-                ),
-              )),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          a['title'] as String,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          a['count'] as String,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: AppTheme.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
