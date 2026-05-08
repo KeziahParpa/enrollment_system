@@ -28,12 +28,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   List<Student> get _filtered {
     return _students.where((s) {
-      final matchSearch = _search.isEmpty ||
+      final matchSearch =
+          _search.isEmpty ||
           s.fullName.toLowerCase().contains(_search.toLowerCase()) ||
           s.id.contains(_search) ||
           s.email.toLowerCase().contains(_search.toLowerCase());
       final matchStatus = _filterStatus == null || s.status == _filterStatus;
-      final matchProgram = _filterProgram == null || s.program == _filterProgram;
+      final matchProgram =
+          _filterProgram == null || s.program == _filterProgram;
       return matchSearch && matchStatus && matchProgram;
     }).toList();
   }
@@ -75,8 +77,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
             onChanged: (v) => setState(() => _search = v),
             decoration: InputDecoration(
               hintText: 'Search students by name, ID, or email…',
-              hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textSecondary),
-              prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textSecondary),
+              hintStyle: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: AppTheme.textSecondary,
+              ),
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                size: 18,
+                color: AppTheme.textSecondary,
+              ),
               filled: true,
               fillColor: AppTheme.bgCard,
               border: OutlineInputBorder(
@@ -89,9 +98,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppTheme.primaryLight, width: 2),
+                borderSide: const BorderSide(
+                  color: AppTheme.primaryLight,
+                  width: 2,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
             ),
           ),
         ),
@@ -100,7 +115,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
           value: _filterStatus,
           hint: 'All Status',
           items: [null, ...EnrollmentStatus.values],
-          label: (v) => v == null ? 'All Status' : v.name[0].toUpperCase() + v.name.substring(1),
+          label: (v) => v == null
+              ? 'All Status'
+              : v.name[0].toUpperCase() + v.name.substring(1),
           onChanged: (v) => setState(() => _filterStatus = v),
         ),
         const SizedBox(width: 10),
@@ -132,18 +149,37 @@ class _StudentsScreenState extends State<StudentsScreen> {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
           value: value,
-          hint: Text(hint,
-              style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textSecondary)),
+          hint: Text(
+            hint,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              color: AppTheme.textSecondary,
+            ),
+          ),
           items: items
-              .map((item) => DropdownMenuItem<T>(
-                    value: item,
-                    child: Text(label(item),
-                        style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary)),
-                  ))
+              .map(
+                (item) => DropdownMenuItem<T>(
+                  value: item,
+                  child: Text(
+                    label(item),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ),
+              )
               .toList(),
           onChanged: onChanged,
-          style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary),
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textSecondary),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            color: AppTheme.textPrimary,
+          ),
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            size: 18,
+            color: AppTheme.textSecondary,
+          ),
         ),
       ),
     );
@@ -166,17 +202,27 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.search_off_rounded, size: 48, color: AppTheme.textSecondary),
+                        const Icon(
+                          Icons.search_off_rounded,
+                          size: 48,
+                          color: AppTheme.textSecondary,
+                        ),
                         const SizedBox(height: 12),
-                        Text('No students found',
-                            style: GoogleFonts.plusJakartaSans(
-                                fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+                        Text(
+                          'No students found',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   )
                 : ListView.separated(
                     itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1, color: AppTheme.border),
+                    separatorBuilder: (_, _) =>
+                        const Divider(height: 1, color: AppTheme.border),
                     itemBuilder: (ctx, i) => _buildStudentRow(ctx, filtered[i]),
                   ),
           ),
@@ -206,11 +252,66 @@ class _StudentsScreenState extends State<StudentsScreen> {
       child: Row(
         children: [
           const SizedBox(width: 50),
-          Expanded(flex: 3, child: Text('STUDENT', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary, letterSpacing: 0.5))),
-          Expanded(flex: 2, child: Text('PROGRAM', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary, letterSpacing: 0.5))),
-          Expanded(flex: 1, child: Text('YEAR', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary, letterSpacing: 0.5))),
-          Expanded(flex: 1, child: Text('SECTION', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary, letterSpacing: 0.5))),
-          Expanded(flex: 2, child: Text('STATUS', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary, letterSpacing: 0.5))),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'STUDENT',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'PROGRAM',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'YEAR',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'SECTION',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'STATUS',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
           const SizedBox(width: 60),
         ],
       ),
@@ -225,18 +326,32 @@ class _StudentsScreenState extends State<StudentsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
           children: [
-            AvatarWidget(initials: student.initials, colorIndex: student.avatarColorIndex, size: 38),
+            AvatarWidget(
+              initials: student.initials,
+              colorIndex: student.avatarColorIndex,
+              size: 38,
+            ),
             const SizedBox(width: 12),
             Expanded(
               flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(student.fullName,
-                      style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                  Text('${student.id} · ${student.email}',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary)),
+                  Text(
+                    student.fullName,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    '${student.id} · ${student.email}',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -244,7 +359,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
               flex: 2,
               child: Text(
                 student.program.replaceFirst('BS ', ''),
-                style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  color: AppTheme.textPrimary,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -252,14 +370,20 @@ class _StudentsScreenState extends State<StudentsScreen> {
               flex: 1,
               child: Text(
                 student.yearLevel,
-                style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ),
             Expanded(
               flex: 1,
               child: Text(
                 student.section,
-                style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ),
             Expanded(flex: 2, child: StatusBadge(status: student.status)),
@@ -268,12 +392,20 @@ class _StudentsScreenState extends State<StudentsScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit_rounded, size: 16, color: AppTheme.textSecondary),
+                    icon: const Icon(
+                      Icons.edit_rounded,
+                      size: 16,
+                      color: AppTheme.textSecondary,
+                    ),
                     onPressed: () => _showEditStudentDialog(context, student),
                     tooltip: 'Edit',
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppTheme.danger),
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      size: 16,
+                      color: AppTheme.danger,
+                    ),
                     onPressed: () => _showDeleteConfirm(context, student),
                     tooltip: 'Delete',
                   ),
@@ -296,7 +428,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
         children: [
           Text(
             'Showing $count of ${_students.length} students',
-            style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textSecondary),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              color: AppTheme.textSecondary,
+            ),
           ),
         ],
       ),
@@ -317,16 +452,32 @@ class _StudentsScreenState extends State<StudentsScreen> {
             children: [
               Row(
                 children: [
-                  AvatarWidget(initials: student.initials, colorIndex: student.avatarColorIndex, size: 56, fontSize: 20),
+                  AvatarWidget(
+                    initials: student.initials,
+                    colorIndex: student.avatarColorIndex,
+                    size: 56,
+                    fontSize: 20,
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(student.fullName,
-                            style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-                        Text(student.id,
-                            style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textSecondary)),
+                        Text(
+                          student.fullName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          student.id,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -347,7 +498,12 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: Text('Close', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondary)),
+                    child: Text(
+                      'Close',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -384,8 +540,21 @@ class _StudentsScreenState extends State<StudentsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary)),
-              Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+              Text(
+                label,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
             ],
           ),
         ],
@@ -406,15 +575,19 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final lastCtrl = TextEditingController(text: existing?.lastName ?? '');
     final emailCtrl = TextEditingController(text: existing?.email ?? '');
     final phoneCtrl = TextEditingController(text: existing?.phone ?? '');
-    String selectedProgram = existing?.program ?? MockData.students.first.program;
+    String selectedProgram =
+        existing?.program ?? MockData.students.first.program;
     String selectedYear = existing?.yearLevel ?? '1st Year';
-    EnrollmentStatus selectedStatus = existing?.status ?? EnrollmentStatus.pending;
+    EnrollmentStatus selectedStatus =
+        existing?.status ?? EnrollmentStatus.pending;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Container(
             width: 520,
             padding: const EdgeInsets.all(28),
@@ -424,7 +597,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
               children: [
                 Text(
                   existing == null ? 'Add New Student' : 'Edit Student',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -442,7 +619,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 _formDropdown<String>(
                   label: 'Program',
                   value: selectedProgram,
-                  items: MockData.students.map((s) => s.program).toSet().toList(),
+                  items: MockData.students
+                      .map((s) => s.program)
+                      .toSet()
+                      .toList(),
                   onChanged: (v) => setDialogState(() => selectedProgram = v!),
                 ),
                 const SizedBox(height: 12),
@@ -453,7 +633,8 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         label: 'Year Level',
                         value: selectedYear,
                         items: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
-                        onChanged: (v) => setDialogState(() => selectedYear = v!),
+                        onChanged: (v) =>
+                            setDialogState(() => selectedYear = v!),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -462,8 +643,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         label: 'Status',
                         value: selectedStatus,
                         items: EnrollmentStatus.values,
-                        onChanged: (v) => setDialogState(() => selectedStatus = v!),
-                        itemLabel: (v) => v.name[0].toUpperCase() + v.name.substring(1),
+                        onChanged: (v) =>
+                            setDialogState(() => selectedStatus = v!),
+                        itemLabel: (v) =>
+                            v.name[0].toUpperCase() + v.name.substring(1),
                       ),
                     ),
                   ],
@@ -474,7 +657,12 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondary)),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
@@ -488,14 +676,17 @@ class _StudentsScreenState extends State<StudentsScreen> {
                             phone: phoneCtrl.text,
                             program: selectedProgram,
                             yearLevel: selectedYear,
-                            section: '${selectedProgram.split(' ').last.substring(0, 2).toUpperCase()}-1A',
+                            section:
+                                '${selectedProgram.split(' ').last.substring(0, 2).toUpperCase()}-1A',
                             status: selectedStatus,
                             enrolledDate: DateTime.now(),
                             avatarColorIndex: _students.length % 6,
                           );
                           setState(() => _students.add(newStudent));
                         } else {
-                          final idx = _students.indexWhere((s) => s.id == existing.id);
+                          final idx = _students.indexWhere(
+                            (s) => s.id == existing.id,
+                          );
                           if (idx >= 0) {
                             setState(() {
                               _students[idx] = existing.copyWith(
@@ -512,7 +703,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         }
                         Navigator.pop(ctx);
                       },
-                      child: Text(existing == null ? 'Add Student' : 'Save Changes'),
+                      child: Text(
+                        existing == null ? 'Add Student' : 'Save Changes',
+                      ),
                     ),
                   ],
                 ),
@@ -528,7 +721,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+          ),
+        ),
         const SizedBox(height: 6),
         TextField(
           controller: ctrl,
@@ -536,10 +736,25 @@ class _StudentsScreenState extends State<StudentsScreen> {
           decoration: InputDecoration(
             filled: true,
             fillColor: AppTheme.bgMain,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.border)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.primaryLight, width: 2)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppTheme.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppTheme.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: AppTheme.primaryLight,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
           ),
         ),
       ],
@@ -556,7 +771,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+          ),
+        ),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -569,15 +791,25 @@ class _StudentsScreenState extends State<StudentsScreen> {
             child: DropdownButton<T>(
               value: value,
               isExpanded: true,
-              items: items.map((item) => DropdownMenuItem<T>(
-                value: item,
-                child: Text(
-                  itemLabel != null ? itemLabel(item) : item.toString(),
-                  style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary),
-                ),
-              )).toList(),
+              items: items
+                  .map(
+                    (item) => DropdownMenuItem<T>(
+                      value: item,
+                      child: Text(
+                        itemLabel != null ? itemLabel(item) : item.toString(),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
               onChanged: onChanged,
-              style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: AppTheme.textPrimary,
+              ),
             ),
           ),
         ),
@@ -590,7 +822,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Remove Student', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+        title: Text(
+          'Remove Student',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+        ),
         content: Text(
           'Are you sure you want to remove ${student.fullName} from the system? This action cannot be undone.',
           style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondary),
@@ -598,7 +833,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondary)),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () {

@@ -61,9 +61,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       iconColor: AppTheme.primaryLight,
       child: Column(
         children: [
-          _settingsDropdownField('Academic Year', _academicYear, ['2023–2024', '2024–2025', '2025–2026'], (v) => setState(() => _academicYear = v!)),
+          _settingsDropdownField('Academic Year', _academicYear, [
+            '2023–2024',
+            '2024–2025',
+            '2025–2026',
+          ], (v) => setState(() => _academicYear = v!)),
           const SizedBox(height: 14),
-          _settingsDropdownField('Current Semester', _semester, ['1st Semester', '2nd Semester', 'Summer'], (v) => setState(() => _semester = v!)),
+          _settingsDropdownField('Current Semester', _semester, [
+            '1st Semester',
+            '2nd Semester',
+            'Summer',
+          ], (v) => setState(() => _semester = v!)),
           const SizedBox(height: 14),
           _settingsTextField('School Name', 'EduEnroll University'),
           const SizedBox(height: 14),
@@ -88,11 +96,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       iconColor: AppTheme.warning,
       child: Column(
         children: [
-          _toggleRow('Email Notifications', 'Receive enrollment updates via email', _emailNotifications, (v) => setState(() => _emailNotifications = v)),
+          _toggleRow(
+            'Email Notifications',
+            'Receive enrollment updates via email',
+            _emailNotifications,
+            (v) => setState(() => _emailNotifications = v),
+          ),
           const Divider(color: AppTheme.border, height: 24),
-          _toggleRow('Enrollment Alerts', 'Get notified when new students enroll', _enrollmentAlerts, (v) => setState(() => _enrollmentAlerts = v)),
+          _toggleRow(
+            'Enrollment Alerts',
+            'Get notified when new students enroll',
+            _enrollmentAlerts,
+            (v) => setState(() => _enrollmentAlerts = v),
+          ),
           const Divider(color: AppTheme.border, height: 24),
-          _toggleRow('Pending Approvals', 'Reminders for unprocessed applications', _pendingApprovals, (v) => setState(() => _pendingApprovals = v)),
+          _toggleRow(
+            'Pending Approvals',
+            'Reminders for unprocessed applications',
+            _pendingApprovals,
+            (v) => setState(() => _pendingApprovals = v),
+          ),
         ],
       ),
     );
@@ -105,7 +128,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       iconColor: AppTheme.success,
       child: Column(
         children: [
-          _toggleRow('Auto-Approve Enrollments', 'Automatically approve new enrollment requests without manual review', _autoApprove, (v) => setState(() => _autoApprove = v)),
+          _toggleRow(
+            'Auto-Approve Enrollments',
+            'Automatically approve new enrollment requests without manual review',
+            _autoApprove,
+            (v) => setState(() => _autoApprove = v),
+          ),
           const Divider(color: AppTheme.border, height: 24),
           _settingsTextField('Enrollment Deadline', 'June 30, 2025'),
           const SizedBox(height: 14),
@@ -113,9 +141,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: _settingsTextField('Min Units per Semester', '15')),
+              Expanded(
+                child: _settingsTextField('Min Units per Semester', '15'),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _settingsTextField('Max Units per Semester', '24')),
+              Expanded(
+                child: _settingsTextField('Max Units per Semester', '24'),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -149,7 +181,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Center(
-                    child: Text('AD', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.primary)),
+                    child: Text(
+                      'AD',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primary,
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -162,7 +201,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppTheme.primary,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Icon(Icons.edit_rounded, size: 12, color: Colors.white),
+                    child: const Icon(
+                      Icons.edit_rounded,
+                      size: 12,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
@@ -190,10 +233,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.danger,
                 side: const BorderSide(color: AppTheme.danger),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: Text('Change Password', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
+              child: Text(
+                'Change Password',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+              ),
             ),
           ),
         ],
@@ -229,9 +277,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Icon(icon, color: iconColor, size: 18),
               ),
               const SizedBox(width: 10),
-              Text(title,
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -241,22 +294,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _toggleRow(String title, String subtitle, bool value, ValueChanged<bool> onChanged) {
+  Widget _toggleRow(
+    String title,
+    String subtitle,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) {
     return Row(
       children: [
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-              Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary)),
+              Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
             ],
           ),
         ),
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: AppTheme.primary,
+          activeThumbColor: AppTheme.primary,
         ),
       ],
     );
@@ -266,7 +337,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+          ),
+        ),
         const SizedBox(height: 6),
         TextField(
           controller: TextEditingController(text: initial),
@@ -274,21 +352,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
           decoration: InputDecoration(
             filled: true,
             fillColor: AppTheme.bgMain,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.border)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.primaryLight, width: 2)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppTheme.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppTheme.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: AppTheme.primaryLight,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _settingsDropdownField(String label, String value, List<String> items, ValueChanged<String?> onChanged) {
+  Widget _settingsDropdownField(
+    String label,
+    String value,
+    List<String> items,
+    ValueChanged<String?> onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+          ),
+        ),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -301,13 +406,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              items: items.map((item) => DropdownMenuItem<String>(
-                value: item,
-                child: Text(item, style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary)),
-              )).toList(),
+              items: items
+                  .map(
+                    (item) => DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(
+                        item,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
               onChanged: onChanged,
-              style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textSecondary),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: AppTheme.textPrimary,
+              ),
+              icon: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 18,
+                color: AppTheme.textSecondary,
+              ),
             ),
           ),
         ),
