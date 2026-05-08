@@ -266,7 +266,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
     ValueChanged<String?> onChanged,
   ) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       items: items
           .map((i) => DropdownMenuItem(value: i, child: Text(i)))
           .toList(),

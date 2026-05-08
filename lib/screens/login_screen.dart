@@ -9,8 +9,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -18,65 +16,65 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Icon(Icons.school, size: 80, color: Colors.deepPurple),
-                const SizedBox(height: 16),
-                Text(
-                  "Student Portal",
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: "Email or Student ID",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person),
+          // We wrap the entire Form in a ConstrainedBox or SizedBox 
+          // to keep it from stretching too wide on web or tablets.
+          child: SizedBox(
+            width: 350, // This makes the "space" for the words shorter
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(Icons.school, size: 60, color: Colors.deepPurple),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Student Portal",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-                  validator: (value) =>
-                      value!.isEmpty ? "Please enter your ID" : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
+                  const SizedBox(height: 30),
+                  
+                  // --- EMAIL FIELD ---
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Student Number",
+                      isDense: true, // This makes the box vertically shorter
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12), // Tighter space
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person, size: 20),
+                    ),
                   ),
-                  validator: (value) =>
-                      value!.isEmpty ? "Please enter your password" : null,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Navigate to Main Student Dashboard
-                      Navigator.pushReplacementNamed(context, '/main');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
+                  const SizedBox(height: 12), // Shorter gap between fields
+                  
+                  // --- PASSWORD FIELD ---
+                  TextFormField(
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "Password",
+                      isDense: true, 
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.lock, size: 20),
+                    ),
                   ),
-                  child: const Text("Login"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pushNamed(context, '/signup'),
-                  child: const Text("Don't have an account? Sign Up"),
-                ),
-              ],
+                  
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushReplacementNamed(context, '/main'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text("Login"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/signup'),
+                    child: const Text("Create Account"),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

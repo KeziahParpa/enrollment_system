@@ -105,7 +105,7 @@ class _ActionQueuesScreenState extends State<ActionQueuesScreen> {
                 ? const Center(child: Text('All caught up!'))
                 : ListView.separated(
                     itemCount: list.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (ctx, i) => _buildRequestItem(list[i]),
                   ),
           ),
