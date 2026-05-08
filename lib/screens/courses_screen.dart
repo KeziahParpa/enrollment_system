@@ -20,17 +20,17 @@ class _CoursesScreenState extends State<CoursesScreen> {
   @override
   void initState() {
     super.initState();
-    _courses = List.from(MockData.courses);
+    _courses = List.from(MockData.courses); // Initialize local state
   }
 
   List<Course> get _filtered => _courses.where((c) {
-        final matchSearch = _search.isEmpty ||
-            c.title.toLowerCase().contains(_search.toLowerCase()) ||
-            c.code.toLowerCase().contains(_search.toLowerCase()) ||
-            c.instructor.toLowerCase().contains(_search.toLowerCase());
-        final matchProgram = _filterProgram == null || c.program == _filterProgram;
-        return matchSearch && matchProgram;
-      }).toList();
+    final matchSearch =
+        _search.isEmpty ||
+        c.title.toLowerCase().contains(_search.toLowerCase()) ||
+        c.code.toLowerCase().contains(_search.toLowerCase());
+    final matchProgram = _filterProgram == null || c.program == _filterProgram;
+    return matchSearch && matchProgram;
+  }).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +40,13 @@ class _CoursesScreenState extends State<CoursesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PageHeader(
-            title: 'Courses',
-            subtitle: '${_courses.length} courses offered this semester',
+            title: 'Course Management',
+            subtitle: '${_courses.length} courses in the database',
             actions: [
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () => _showCourseForm(null),
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Add Course'),
+                label: const Text('Add New Course'),
               ),
             ],
           ),
@@ -59,78 +59,130 @@ class _CoursesScreenState extends State<CoursesScreen> {
     );
   }
 
-  Widget _buildFilters() {
-    final programs = _courses.map((c) => c.program).toSet().toList();
-    return Row(
-      children: [
-        Expanded(
-          flex: 3,
-          child: TextField(
-            onChanged: (v) => setState(() => _search = v),
-            decoration: InputDecoration(
-              hintText: 'Search courses by title, code, or instructor…',
-              hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textSecondary),
-              prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppTheme.textSecondary),
-              filled: true,
-              fillColor: AppTheme.bgCard,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.border)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.border)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppTheme.primaryLight, width: 2)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+  void _showCourseForm(Course? existing) {
+    final codeCtrl = TextEditingController(text: existing?.code ?? '');
+    final titleCtrl = TextEditingController(text: existing?.title ?? '');
+    final instructorCtrl = TextEditingController(
+      text: existing?.instructor ?? '',
+    );
+    final capCtrl = TextEditingController(
+      text: existing?.capacity.toString() ?? '40',
+    );
+    String selectedProgram = existing?.program ?? 'BS Computer Science';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(existing == null ? 'Create Course' : 'Edit Course'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _formField('Course Code', codeCtrl),
+                const SizedBox(height: 12),
+                _formField('Course Title', titleCtrl),
+                const SizedBox(height: 12),
+                _formField('Instructor Name', instructorCtrl),
+                const SizedBox(height: 12),
+                _formField('Max Capacity', capCtrl, isNumber: true),
+                const SizedBox(height: 12),
+                _formDropdown(
+                  'Program',
+                  selectedProgram,
+                  [
+                    'BS Computer Science',
+                    'BS Information Technology',
+                    'BS Nursing',
+                  ],
+                  (v) => setDialogState(() => selectedProgram = v!),
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: AppTheme.bgCard,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppTheme.border),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String?>(
-              value: _filterProgram,
-              hint: Text('All Programs', style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textSecondary)),
-              items: [null, ...programs].map((p) => DropdownMenuItem<String?>(
-                    value: p,
-                    child: Text(p == null ? 'All Programs' : p.replaceFirst('BS ', ''),
-                        style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textPrimary)),
-                  )).toList(),
-              onChanged: (v) => setState(() => _filterProgram = v),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textSecondary),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
             ),
-          ),
+            ElevatedButton(
+              onPressed: () {
+                final newCourse = Course(
+                  code: codeCtrl.text,
+                  title: titleCtrl.text,
+                  instructor: instructorCtrl.text,
+                  schedule: existing?.schedule ?? 'TBA',
+                  room: existing?.room ?? 'TBA',
+                  units: existing?.units ?? 3,
+                  enrolled: existing?.enrolled ?? 0,
+                  capacity: int.tryParse(capCtrl.text) ?? 40,
+                  program: selectedProgram,
+                );
+
+                setState(() {
+                  if (existing == null) {
+                    _courses.add(newCourse);
+                  } else {
+                    final index = _courses.indexWhere(
+                      (c) => c.code == existing.code,
+                    );
+                    if (index != -1) _courses[index] = newCourse;
+                  }
+                });
+                Navigator.pop(ctx);
+              },
+              child: const Text('Save Course'),
+            ),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirm(Course course) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remove Course'),
+        content: Text('Are you sure you want to delete ${course.code}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.danger),
+            onPressed: () {
+              setState(
+                () => _courses.removeWhere((c) => c.code == course.code),
+              );
+              Navigator.pop(ctx);
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildCourseGrid() {
     final filtered = _filtered;
-    if (filtered.isEmpty) {
-      return const Center(child: Text('No courses found'));
-    }
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
-        childAspectRatio: 1.5,
+        childAspectRatio: 1.4,
       ),
       itemCount: filtered.length,
-      itemBuilder: (ctx, i) => _buildCourseCard(ctx, filtered[i]),
+      itemBuilder: (ctx, i) => _buildCourseCard(filtered[i]),
     );
   }
 
-  Widget _buildCourseCard(BuildContext context, Course course) {
-    final fillPct = (course.fillRate * 100).toInt();
-    final fillColor = course.isFull
-        ? AppTheme.danger
-        : fillPct > 80
-            ? AppTheme.warning
-            : AppTheme.success;
-
+  Widget _buildCourseCard(Course course) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -143,128 +195,115 @@ class _CoursesScreenState extends State<CoursesScreen> {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.primary.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  course.code,
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.primary),
+              Text(
+                course.code,
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primary,
                 ),
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppTheme.accent.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  '${course.units} units',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.accent),
+              IconButton(
+                onPressed: () => _showCourseForm(course),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+              ),
+              IconButton(
+                onPressed: () => _showDeleteConfirm(course),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  size: 18,
+                  color: AppTheme.danger,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
           Text(
             course.title,
-            style: GoogleFonts.plusJakartaSans(
-                fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
-            maxLines: 2,
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Icon(Icons.person_rounded, size: 13, color: AppTheme.textSecondary),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  course.instructor,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const Icon(Icons.schedule_rounded, size: 13, color: AppTheme.textSecondary),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  course.schedule,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const Icon(Icons.room_rounded, size: 13, color: AppTheme.textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                course.room,
-                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textSecondary),
-              ),
-            ],
+          Text(
+            'Instructor: ${course.instructor}',
+            style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
           ),
           const Spacer(),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${course.enrolled}/${course.capacity} enrolled',
-                          style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textSecondary),
-                        ),
-                        Text(
-                          '$fillPct%',
-                          style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700, color: fillColor),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: course.fillRate,
-                        minHeight: 6,
-                        backgroundColor: AppTheme.border,
-                        valueColor: AlwaysStoppedAnimation<Color>(fillColor),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          LinearProgressIndicator(
+            value: course.fillRate,
+            backgroundColor: AppTheme.border,
+            color: AppTheme.primaryLight,
           ),
-          if (course.isFull) ...[
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppTheme.danger.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text('FULL', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.danger, letterSpacing: 0.5)),
-            ),
-          ],
+          const SizedBox(height: 4),
+          Text(
+            '${course.enrolled}/${course.capacity} Students',
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _formField(
+    String label,
+    TextEditingController ctrl, {
+    bool isNumber = false,
+  }) {
+    return TextField(
+      controller: ctrl,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: AppTheme.bgMain,
+      ),
+    );
+  }
+
+  Widget _formDropdown(
+    String label,
+    String value,
+    List<String> items,
+    ValueChanged<String?> onChanged,
+  ) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      items: items
+          .map((i) => DropdownMenuItem(value: i, child: Text(i)))
+          .toList(),
+      onChanged: onChanged,
+      decoration: InputDecoration(labelText: label),
+    );
+  }
+
+  Widget _buildFilters() {
+    final programs = MockData.courses.map((c) => c.program).toSet().toList();
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: TextField(
+            onChanged: (v) => setState(() => _search = v),
+            decoration: InputDecoration(
+              hintText: 'Search courses by code or title...',
+              prefixIcon: const Icon(Icons.search_rounded),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        DropdownButton<String?>(
+          value: _filterProgram,
+          hint: const Text('All Programs'),
+          items: [null, ...programs]
+              .map(
+                (p) => DropdownMenuItem(
+                  value: p,
+                  child: Text(p ?? 'All Programs'),
+                ),
+              )
+              .toList(),
+          onChanged: (v) => setState(() => _filterProgram = v),
+        ),
+      ],
     );
   }
 }
