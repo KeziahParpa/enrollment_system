@@ -16,9 +16,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-void _handleLogin() {
+  void _handleLogin() {
     final email = _emailController.text.trim().toLowerCase();
-    final password = _passwordController.text; // Get the password!
+    final password = _passwordController.text;
 
     // 1. CHECK IF EMAIL EXISTS IN OUR "AUTH DATABASE"
     if (!MockData.userCredentials.containsKey(email)) {
@@ -33,7 +33,10 @@ void _handleLogin() {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Incorrect password.'), backgroundColor: AppTheme.danger),
       );
-    // 2. STUDENT CHECK
+      return; // Stop here if password is wrong
+    }
+
+    // 3. STUDENT CHECK
     if (email.endsWith('@students.isatu.edu')) {
       try {
         final student = MockData.students.firstWhere((s) => s.email == email);
@@ -46,33 +49,24 @@ void _handleLogin() {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Student account not found in database.'),
-            backgroundColor: AppTheme.danger,
-          ),
+          const SnackBar(content: Text('Student account not found in database.'), backgroundColor: AppTheme.danger),
         );
       }
       return;
     }
 
-    // 3. IF PASSWORD IS CORRECT, ROUTE THEM:
+    // 4. ADMIN CHECK
     if (email == 'admin@isatu.edu') {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
-    } else {
-      // It's a student! Find their profile and log them in.
-      final student = MockData.students.firstWhere((s) => s.email == email);
       Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => StudentDashboard(studentId: student.id)),
+        context, 
+        MaterialPageRoute(builder: (context) => const MainScreen())
       );
+      return;
     }
 
-    // 3. INVALID FORMAT
+    // 5. INVALID FORMAT
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Invalid ISAT-U email address.'),
-        backgroundColor: AppTheme.warning,
-      ),
+      const SnackBar(content: Text('Invalid ISAT-U email address.'), backgroundColor: AppTheme.warning),
     );
   }
 
@@ -95,102 +89,62 @@ void _handleLogin() {
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
+              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // --- YOUR UPDATED LOGO SECTION ---
               Center(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryLight.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.school_rounded,
-                    size: 48,
-                    color: AppTheme.primary,
-                  ),
+                child: Image.asset(
+                  'assets/logo.jpg',
+                  height: 80, // Adjust this value to make the logo bigger or smaller
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback to the old icon if the image fails to load
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: AppTheme.primaryLight.withOpacity(0.1), shape: BoxShape.circle),
+                      child: const Icon(Icons.school_rounded, size: 48, color: AppTheme.primary),
+                    );
+                  },
                 ),
               ),
+              // ---------------------------------
               const SizedBox(height: 24),
               Center(
-                child: Text(
-                  'ISAT-U Portal',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
+                child: Text('ISAT-U Portal', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
               ),
               Center(
-                child: Text(
-                  'Sign in to continue',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
+                child: Text('Sign in to continue', style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppTheme.textSecondary)),
               ),
               const SizedBox(height: 32),
-              Text(
-                'Email Address',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
+              Text('Email Address', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
               const SizedBox(height: 8),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  hintText: 'username or email',
+                  hintText: 'Username or ISAT U email',
                   filled: true,
                   fillColor: AppTheme.bgMain,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Password',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
+              Text('Password', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
               const SizedBox(height: 8),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  hintText: '••••••••',
+                  hintText: 'Password',
                   filled: true,
                   fillColor: AppTheme.bgMain,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
               ),
               const SizedBox(height: 32),
@@ -201,18 +155,9 @@ void _handleLogin() {
                   onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text(
-                    'Sign In',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text('Sign In', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
                 ),
               ),
             ],
