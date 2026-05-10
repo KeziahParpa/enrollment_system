@@ -19,9 +19,21 @@ class _MainScreenState extends State<MainScreen> {
 
   // Removed Departments and Reports
   final List<_NavItem> _navItems = const [
-    _NavItem(icon: Icons.dashboard_rounded, label: 'Dashboard', activeIcon: Icons.dashboard_rounded),
-    _NavItem(icon: Icons.school_outlined, label: 'Students', activeIcon: Icons.school_rounded),
-    _NavItem(icon: Icons.menu_book_outlined, label: 'Courses', activeIcon: Icons.menu_book_rounded),
+    _NavItem(
+      icon: Icons.dashboard_rounded,
+      label: 'Dashboard',
+      activeIcon: Icons.dashboard_rounded,
+    ),
+    _NavItem(
+      icon: Icons.school_outlined,
+      label: 'Students',
+      activeIcon: Icons.school_rounded,
+    ),
+    _NavItem(
+      icon: Icons.menu_book_outlined,
+      label: 'Courses',
+      activeIcon: Icons.menu_book_rounded,
+    ),
   ];
 
   final List<Widget> _screens = const [
@@ -127,26 +139,58 @@ class _MainScreenState extends State<MainScreen> {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppTheme.primaryLight, AppTheme.accent]),
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primaryLight, AppTheme.accent],
+                ),
                 borderRadius: BorderRadius.circular(9),
               ),
-              child: const Center(child: Text('AD', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))),
+              child: const Center(
+                child: Text(
+                  'AD',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Administrator', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600)),
-                  Text('admin@isatu.edu.ph', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.sidebarText.withOpacity(0.5)), overflow: TextOverflow.ellipsis),
+                  Text(
+                    'Administrator',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    'admin@isatu.edu.ph',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      color: AppTheme.sidebarText.withOpacity(0.5),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
             // Functional Sign Out Button
             IconButton(
-              icon: Icon(Icons.logout_rounded, size: 16, color: AppTheme.sidebarText.withOpacity(0.4)),
+              icon: Icon(
+                Icons.logout_rounded,
+                size: 16,
+                color: AppTheme.sidebarText.withOpacity(0.4),
+              ),
               onPressed: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
               },
             ),
           ],
@@ -164,21 +208,44 @@ class _MainScreenState extends State<MainScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [AppTheme.primaryLight, AppTheme.accent]),
+              gradient: const LinearGradient(
+                colors: [AppTheme.primaryLight, AppTheme.accent],
+              ),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.school_rounded, color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.school_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 10),
-          Text('EduEnroll', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white)),
+          Text(
+            'ISATU Admin',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(int index) => _buildNavItemCustom(icon: _navItems[index].icon, activeIcon: _navItems[index].activeIcon, label: _navItems[index].label, index: index);
+  Widget _buildNavItem(int index) => _buildNavItemCustom(
+    icon: _navItems[index].icon,
+    activeIcon: _navItems[index].activeIcon,
+    label: _navItems[index].label,
+    index: index,
+  );
 
-  Widget _buildNavItemCustom({required IconData icon, required IconData activeIcon, required String label, required int index}) {
+  Widget _buildNavItemCustom({
+    required IconData icon,
+    required IconData activeIcon,
+    required String label,
+    required int index,
+  }) {
     final isActive = _selectedIndex == index;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
@@ -188,14 +255,30 @@ class _MainScreenState extends State<MainScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.primaryLight.withOpacity(0.2) : Colors.transparent,
+            color: isActive
+                ? AppTheme.primaryLight.withOpacity(0.2)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
-              Icon(isActive ? activeIcon : icon, size: 18, color: isActive ? Colors.white : AppTheme.sidebarText.withOpacity(0.6)),
+              Icon(
+                isActive ? activeIcon : icon,
+                size: 18,
+                color: isActive
+                    ? Colors.white
+                    : AppTheme.sidebarText.withOpacity(0.6),
+              ),
               const SizedBox(width: 10),
-              Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 13, color: isActive ? Colors.white : AppTheme.sidebarText.withOpacity(0.7))),
+              Text(
+                label,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  color: isActive
+                      ? Colors.white
+                      : AppTheme.sidebarText.withOpacity(0.7),
+                ),
+              ),
             ],
           ),
         ),
@@ -207,5 +290,9 @@ class _MainScreenState extends State<MainScreen> {
 class _NavItem {
   final IconData icon, activeIcon;
   final String label;
-  const _NavItem({required this.icon, required this.activeIcon, required this.label});
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
 }
