@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'screens/main_screen.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(const EnrollmentApp());
@@ -15,7 +16,7 @@ class EnrollmentApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'ISATU Enrollment',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
@@ -35,7 +36,7 @@ class EnrollmentApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MainScreen(),
+      home: const LoginScreen(),
     );
   }
 }
