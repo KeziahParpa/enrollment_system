@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
-import '../models/student.dart';
+import '../models/course.dart'; // Updated import
 import '../widgets/page_header.dart';
 
 class CoursesScreen extends StatefulWidget {
@@ -14,13 +14,13 @@ class CoursesScreen extends StatefulWidget {
 
 class _CoursesScreenState extends State<CoursesScreen> {
   String _search = '';
-  String? _filterProgram;
+  String? _filterDepartment; // Changed from Program to Department
   List<Course> _courses = [];
 
   @override
   void initState() {
     super.initState();
-    _courses = List.from(MockData.courses); // Initialize local state
+    _courses = List.from(MockData.courses);
   }
 
   List<Course> get _filtered => _courses.where((c) {
@@ -28,8 +28,9 @@ class _CoursesScreenState extends State<CoursesScreen> {
         _search.isEmpty ||
         c.title.toLowerCase().contains(_search.toLowerCase()) ||
         c.code.toLowerCase().contains(_search.toLowerCase());
-    final matchProgram = _filterProgram == null || c.program == _filterProgram;
-    return matchSearch && matchProgram;
+    // Match against the new departmentId field
+    final matchDept = _filterDepartment == null || c.departmentId == _filterDepartment;
+    return matchSearch && matchDept;
   }).toList();
 
   @override
@@ -63,12 +64,12 @@ class _CoursesScreenState extends State<CoursesScreen> {
     final codeCtrl = TextEditingController(text: existing?.code ?? '');
     final titleCtrl = TextEditingController(text: existing?.title ?? '');
     final instructorCtrl = TextEditingController(
-      text: existing?.instructor ?? '',
+      text: existing?.instructorId ?? '', // Changed to instructorId
     );
     final capCtrl = TextEditingController(
-      text: existing?.capacity.toString() ?? '40',
+      text: existing?.maxCapacity.toString() ?? '40', // Changed to maxCapacity
     );
-    String selectedProgram = existing?.program ?? 'BS Computer Science';
+    String selectedDept = existing?.departmentId ?? 'CCS'; // Changed to departmentId
 
     showDialog(
       context: context,
@@ -86,19 +87,15 @@ class _CoursesScreenState extends State<CoursesScreen> {
                 const SizedBox(height: 12),
                 _formField('Course Title', titleCtrl),
                 const SizedBox(height: 12),
-                _formField('Instructor Name', instructorCtrl),
+                _formField('Instructor ID', instructorCtrl),
                 const SizedBox(height: 12),
                 _formField('Max Capacity', capCtrl, isNumber: true),
                 const SizedBox(height: 12),
                 _formDropdown(
-                  'Program',
-                  selectedProgram,
-                  [
-                    'BS Computer Science',
-                    'BS Information Technology',
-                    'BS Nursing',
-                  ],
-                  (v) => setDialogState(() => selectedProgram = v!),
+                  'Department',
+                  selectedDept,
+                  ['CCS', 'CBA', 'CON', 'CEAS'], // Department codes
+                  (v) => setDialogState(() => selectedDept = v!),
                 ),
               ],
             ),
@@ -110,25 +107,26 @@ class _CoursesScreenState extends State<CoursesScreen> {
             ),
             ElevatedButton(
               onPressed: () {
+                // Creating the new course using the updated model parameters
                 final newCourse = Course(
+                  id: existing?.id ?? 'c_${DateTime.now().millisecondsSinceEpoch}', // Dummy ID generator
                   code: codeCtrl.text,
                   title: titleCtrl.text,
-                  instructor: instructorCtrl.text,
+                  instructorId: instructorCtrl.text,
                   schedule: existing?.schedule ?? 'TBA',
                   room: existing?.room ?? 'TBA',
                   units: existing?.units ?? 3,
-                  enrolled: existing?.enrolled ?? 0,
-                  capacity: int.tryParse(capCtrl.text) ?? 40,
-                  program: selectedProgram,
+                  currentCapacity: existing?.currentCapacity ?? 0,
+                  maxCapacity: int.tryParse(capCtrl.text) ?? 40,
+                  departmentId: selectedDept,
+                  prerequisites: existing?.prerequisites ?? [],
                 );
 
                 setState(() {
                   if (existing == null) {
                     _courses.add(newCourse);
                   } else {
-                    final index = _courses.indexWhere(
-                      (c) => c.code == existing.code,
-                    );
+                    final index = _courses.indexWhere((c) => c.id == existing.id);
                     if (index != -1) _courses[index] = newCourse;
                   }
                 });
@@ -157,7 +155,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.danger),
             onPressed: () {
               setState(
-                () => _courses.removeWhere((c) => c.code == course.code),
+                () => _courses.removeWhere((c) => c.id == course.id), // Delete by ID
               );
               Navigator.pop(ctx);
             },
@@ -224,7 +222,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
             overflow: TextOverflow.ellipsis,
           ),
           Text(
-            'Instructor: ${course.instructor}',
+            'Instructor ID: ${course.instructorId}', // Using instructorId
             style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
           ),
           const Spacer(),
@@ -235,7 +233,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            '${course.enrolled}/${course.capacity} Students',
+            '${course.currentCapacity}/${course.maxCapacity} Students', // Updated capacities
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
           ),
         ],
@@ -276,7 +274,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
   }
 
   Widget _buildFilters() {
-    final programs = MockData.courses.map((c) => c.program).toSet().toList();
+    final departments = MockData.courses.map((c) => c.departmentId).toSet().toList();
     return Row(
       children: [
         Expanded(
@@ -291,17 +289,17 @@ class _CoursesScreenState extends State<CoursesScreen> {
         ),
         const SizedBox(width: 10),
         DropdownButton<String?>(
-          value: _filterProgram,
-          hint: const Text('All Programs'),
-          items: [null, ...programs]
+          value: _filterDepartment,
+          hint: const Text('All Departments'),
+          items: [null, ...departments]
               .map(
-                (p) => DropdownMenuItem(
-                  value: p,
-                  child: Text(p ?? 'All Programs'),
+                (d) => DropdownMenuItem(
+                  value: d,
+                  child: Text(d ?? 'All Departments'),
                 ),
               )
               .toList(),
-          onChanged: (v) => setState(() => _filterProgram = v),
+          onChanged: (v) => setState(() => _filterDepartment = v),
         ),
       ],
     );

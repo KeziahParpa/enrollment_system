@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
 import '../models/student.dart';
+import '../models/enrollment.dart'; // Added the new model
 import '../widgets/page_header.dart';
 
 class ActionQueuesScreen extends StatefulWidget {
@@ -14,37 +15,50 @@ class ActionQueuesScreen extends StatefulWidget {
 
 class _ActionQueuesScreenState extends State<ActionQueuesScreen> {
   // Logic: Connect to State
-  // We filter the MockData directly to simulate real-time updates
-  List<Student> get _pendingEnrollments => MockData.students
-      .where((s) => s.status == EnrollmentStatus.pending)
+  // We now filter MockData.enrollments instead of students
+  List<Enrollment> get _pendingEnrollments => MockData.enrollments
+      .where((e) => e.status == EnrollmentStatus.pending)
       .toList();
 
-  List<Student> get _pendingDrops => MockData.students
-      .where((s) => s.status == EnrollmentStatus.dropped)
+  List<Enrollment> get _pendingDrops => MockData.enrollments
+      .where((e) => e.status == EnrollmentStatus.dropped)
       .toList();
 
-  void _handleApproval(Student student) {
+  void _handleApproval(Enrollment enrollment) {
     setState(() {
-      // Find the index in the original MockData list
-      final index = MockData.students.indexWhere((s) => s.id == student.id);
+      // Find the enrollment in the mock database and update its status
+      final index = MockData.enrollments.indexWhere((e) => e.id == enrollment.id);
       if (index != -1) {
-        // Update the status to 'enrolled'
-        MockData.students[index] = MockData.students[index].copyWith(
-          status: EnrollmentStatus.enrolled,
+        // Create a new updated Enrollment object (simulating a Firebase update)
+        MockData.enrollments[index] = Enrollment(
+          id: enrollment.id,
+          studentId: enrollment.studentId,
+          courseId: enrollment.courseId,
+          semester: enrollment.semester,
+          status: EnrollmentStatus.enrolled, // Status updated!
+          dateRequested: enrollment.dateRequested,
+          grade: enrollment.grade,
         );
       }
     });
+    
+    // Look up the student name just for the SnackBar message
+    final student = MockData.students.firstWhere(
+      (s) => s.id == enrollment.studentId,
+      orElse: () => _fallbackStudent(),
+    );
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Approved enrollment for ${student.fullName}')),
     );
   }
 
-  void _handleRejection(Student student) {
+  void _handleRejection(Enrollment enrollment) {
     setState(() {
-      MockData.students.removeWhere((s) => s.id == student.id);
+      MockData.enrollments.removeWhere((e) => e.id == enrollment.id);
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Rejected request for ${student.fullName}')),
+      const SnackBar(content: Text('Rejected request')),
     );
   }
 
@@ -81,7 +95,7 @@ class _ActionQueuesScreenState extends State<ActionQueuesScreen> {
     );
   }
 
-  Widget _buildQueueCard(String title, List<Student> list) {
+  Widget _buildQueueCard(String title, List<Enrollment> list) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -114,7 +128,13 @@ class _ActionQueuesScreenState extends State<ActionQueuesScreen> {
     );
   }
 
-  Widget _buildRequestItem(Student student) {
+  Widget _buildRequestItem(Enrollment enrollment) {
+    // We look up the student based on the enrollment's studentId
+    final student = MockData.students.firstWhere(
+      (s) => s.id == enrollment.studentId,
+      orElse: () => _fallbackStudent(), // Prevents crashes if data is missing
+    );
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -135,7 +155,7 @@ class _ActionQueuesScreenState extends State<ActionQueuesScreen> {
                   ),
                 ),
                 Text(
-                  '${student.id} • ${student.program}',
+                  '${student.studentId} • ${student.program} • Course: ${enrollment.courseId}',
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppTheme.textSecondary,
@@ -144,22 +164,35 @@ class _ActionQueuesScreenState extends State<ActionQueuesScreen> {
               ],
             ),
           ),
-          // Action Buttons: Connect to State
           IconButton(
             icon: const Icon(
               Icons.check_circle_rounded,
               color: AppTheme.success,
             ),
-            onPressed: () => _handleApproval(student),
+            onPressed: () => _handleApproval(enrollment),
             tooltip: 'Approve',
           ),
           IconButton(
             icon: const Icon(Icons.cancel_rounded, color: AppTheme.danger),
-            onPressed: () => _handleRejection(student),
+            onPressed: () => _handleRejection(enrollment),
             tooltip: 'Reject',
           ),
         ],
       ),
+    );
+  }
+
+  // A safe fallback in case the mock data is mismatched
+  Student _fallbackStudent() {
+    return Student(
+      id: 'error',
+      studentId: 'Unknown',
+      firstName: 'Unknown',
+      lastName: 'Student',
+      email: '',
+      phone: '',
+      program: 'Unknown',
+      yearLevel: '',
     );
   }
 }

@@ -1,39 +1,49 @@
 import 'package:flutter/material.dart';
 import '../models/student.dart';
+import '../models/course.dart';
+import '../models/enrollment.dart';
+import '../models/department.dart'; 
 
 class MockData {
+  // 1. UPDATED STUDENTS LIST (Mapped to new programs)
   static final List<Student> students = [
-    Student(id: '2024-0001', firstName: 'Maria', lastName: 'Santos', email: 'maria.santos@school.edu', phone: '09171234567', program: 'BS Computer Science', yearLevel: '3rd Year', section: 'CS-3A', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 10), avatarColorIndex: 0),
-    Student(id: '2024-0002', firstName: 'Juan', lastName: 'dela Cruz', email: 'juan.delacruz@school.edu', phone: '09182345678', program: 'BS Information Technology', yearLevel: '2nd Year', section: 'IT-2B', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 11), avatarColorIndex: 1),
-    Student(id: '2024-0003', firstName: 'Ana', lastName: 'Reyes', email: 'ana.reyes@school.edu', phone: '09193456789', program: 'BS Computer Science', yearLevel: '1st Year', section: 'CS-1A', status: EnrollmentStatus.pending, enrolledDate: DateTime(2024, 6, 15), avatarColorIndex: 2),
-    Student(id: '2024-0004', firstName: 'Carlos', lastName: 'Mendoza', email: 'carlos.mendoza@school.edu', phone: '09204567890', program: 'BS Business Administration', yearLevel: '4th Year', section: 'BA-4A', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 8), avatarColorIndex: 3),
-    Student(id: '2024-0005', firstName: 'Liza', lastName: 'Garcia', email: 'liza.garcia@school.edu', phone: '09215678901', program: 'BS Nursing', yearLevel: '2nd Year', section: 'NUR-2A', status: EnrollmentStatus.dropped, enrolledDate: DateTime(2024, 6, 9), avatarColorIndex: 4),
-    Student(id: '2024-0006', firstName: 'Ramon', lastName: 'Torres', email: 'ramon.torres@school.edu', phone: '09226789012', program: 'BS Information Technology', yearLevel: '3rd Year', section: 'IT-3A', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 12), avatarColorIndex: 5),
-    Student(id: '2024-0007', firstName: 'Patricia', lastName: 'Lim', email: 'patricia.lim@school.edu', phone: '09237890123', program: 'BS Nursing', yearLevel: '4th Year', section: 'NUR-4A', status: EnrollmentStatus.graduated, enrolledDate: DateTime(2020, 6, 10), avatarColorIndex: 0),
-    Student(id: '2024-0008', firstName: 'Marco', lastName: 'Villanueva', email: 'marco.villanueva@school.edu', phone: '09248901234', program: 'BS Computer Science', yearLevel: '2nd Year', section: 'CS-2B', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 13), avatarColorIndex: 1),
-    Student(id: '2024-0009', firstName: 'Sophia', lastName: 'Aquino', email: 'sophia.aquino@school.edu', phone: '09259012345', program: 'BS Business Administration', yearLevel: '1st Year', section: 'BA-1A', status: EnrollmentStatus.pending, enrolledDate: DateTime(2024, 6, 16), avatarColorIndex: 2),
-    Student(id: '2024-0010', firstName: 'Daniel', lastName: 'Ramos', email: 'daniel.ramos@school.edu', phone: '09260123456', program: 'BS Information Technology', yearLevel: '4th Year', section: 'IT-4A', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 7), avatarColorIndex: 3),
-    Student(id: '2024-0011', firstName: 'Isabel', lastName: 'Cruz', email: 'isabel.cruz@school.edu', phone: '09271234567', program: 'BS Computer Science', yearLevel: '3rd Year', section: 'CS-3B', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 11), avatarColorIndex: 4),
-    Student(id: '2024-0012', firstName: 'Miguel', lastName: 'Fernandez', email: 'miguel.fernandez@school.edu', phone: '09282345678', program: 'BS Nursing', yearLevel: '1st Year', section: 'NUR-1A', status: EnrollmentStatus.enrolled, enrolledDate: DateTime(2024, 6, 14), avatarColorIndex: 5),
+    Student(id: 'uid_1', studentId: '2024-0001', firstName: 'Maria', lastName: 'Santos', email: 'maria.santos@school.edu', phone: '09171234567', program: 'BS Computer Science', yearLevel: '3rd Year', gpa: 1.5),
+    Student(id: 'uid_2', studentId: '2024-0002', firstName: 'Juan', lastName: 'dela Cruz', email: 'juan.delacruz@school.edu', phone: '09182345678', program: 'BS Information Technology', yearLevel: '2nd Year', gpa: 2.1),
+    Student(id: 'uid_3', studentId: '2024-0003', firstName: 'Ana', lastName: 'Reyes', email: 'ana.reyes@school.edu', phone: '09193456789', program: 'BS Civil Engineering', yearLevel: '1st Year', gpa: 1.75),
+    Student(id: 'uid_4', studentId: '2024-0004', firstName: 'Carlos', lastName: 'Mendoza', email: 'carlos.mendoza@school.edu', phone: '09204567890', program: 'BS Architecture', yearLevel: '4th Year', gpa: 1.25),
+    Student(id: 'uid_5', studentId: '2024-0005', firstName: 'Liza', lastName: 'Garcia', email: 'liza.garcia@school.edu', phone: '09215678901', program: 'BS Biology', yearLevel: '2nd Year', gpa: 2.5),
+    Student(id: 'uid_6', studentId: '2024-0006', firstName: 'Ramon', lastName: 'Torres', email: 'ramon.torres@school.edu', phone: '09226789012', program: 'Bachelor of Secondary Education', yearLevel: '3rd Year', gpa: 1.8),
   ];
 
+  // 2. UPDATED COURSES LIST (Mapped to new Department IDs)
   static final List<Course> courses = [
-    Course(code: 'CS101', title: 'Introduction to Programming', instructor: 'Dr. Elena Bautista', schedule: 'MWF 7:30–9:00 AM', room: 'Lab 201', units: 3, enrolled: 38, capacity: 40, program: 'BS Computer Science'),
-    Course(code: 'CS201', title: 'Data Structures & Algorithms', instructor: 'Prof. Ricardo Soriano', schedule: 'TTH 10:30 AM–12:00 PM', room: 'Lab 203', units: 3, enrolled: 35, capacity: 40, program: 'BS Computer Science'),
-    Course(code: 'CS301', title: 'Operating Systems', instructor: 'Dr. Marita Dizon', schedule: 'MWF 1:00–2:30 PM', room: 'Room 305', units: 3, enrolled: 28, capacity: 35, program: 'BS Computer Science'),
-    Course(code: 'IT101', title: 'Web Development Fundamentals', instructor: 'Prof. Jerome Pascual', schedule: 'TTH 7:30–9:00 AM', room: 'Lab 101', units: 3, enrolled: 40, capacity: 40, program: 'BS Information Technology'),
-    Course(code: 'IT201', title: 'Database Management', instructor: 'Dr. Carmela Uy', schedule: 'MWF 9:00–10:30 AM', room: 'Lab 202', units: 3, enrolled: 33, capacity: 40, program: 'BS Information Technology'),
-    Course(code: 'IT301', title: 'Network Administration', instructor: 'Prof. Alvin Navarro', schedule: 'TTH 1:00–2:30 PM', room: 'Lab 104', units: 3, enrolled: 22, capacity: 35, program: 'BS Information Technology'),
-    Course(code: 'BA101', title: 'Principles of Management', instructor: 'Dr. Grace Tan', schedule: 'MWF 10:30 AM–12:00 PM', room: 'Room 201', units: 3, enrolled: 45, capacity: 50, program: 'BS Business Administration'),
-    Course(code: 'NUR101', title: 'Fundamentals of Nursing', instructor: 'Prof. Rosario Ocampo', schedule: 'TTH 9:00–10:30 AM', room: 'Sim Lab 1', units: 4, enrolled: 30, capacity: 30, program: 'BS Nursing'),
+    Course(id: 'c_1', code: 'CS101', title: 'Introduction to Programming', instructorId: 'prof_1', schedule: 'MWF 7:30–9:00 AM', room: 'Lab 201', units: 3, currentCapacity: 38, maxCapacity: 40, departmentId: 'CCI', prerequisites: []),
+    Course(id: 'c_2', code: 'CS201', title: 'Data Structures & Algorithms', instructorId: 'prof_2', schedule: 'TTH 10:30 AM–12:00 PM', room: 'Lab 203', units: 3, currentCapacity: 35, maxCapacity: 40, departmentId: 'CCI', prerequisites: ['CS101']),
+    Course(id: 'c_3', code: 'CE101', title: 'Statics of Rigid Bodies', instructorId: 'prof_3', schedule: 'MWF 1:00–2:30 PM', room: 'Room 305', units: 3, currentCapacity: 28, maxCapacity: 35, departmentId: 'CEA', prerequisites: []),
+    Course(id: 'c_4', code: 'IT101', title: 'Web Development Fundamentals', instructorId: 'prof_4', schedule: 'TTH 7:30–9:00 AM', room: 'Lab 101', units: 3, currentCapacity: 40, maxCapacity: 40, departmentId: 'CCI', prerequisites: []),
+    Course(id: 'c_5', code: 'BIO101', title: 'General Biology', instructorId: 'prof_5', schedule: 'TTH 9:00–10:30 AM', room: 'Lab 4', units: 4, currentCapacity: 30, maxCapacity: 30, departmentId: 'CAS', prerequisites: []),
+    Course(id: 'c_6', code: 'EDUC101', title: 'The Child and Adolescent Learners', instructorId: 'prof_6', schedule: 'MWF 9:00–10:30 AM', room: 'Room 102', units: 3, currentCapacity: 45, maxCapacity: 50, departmentId: 'COE', prerequisites: []),
+    Course(id: 'c_7', code: 'AUTO101', title: 'Automotive Electrical Systems', instructorId: 'prof_7', schedule: 'Sat 8:00–12:00 PM', room: 'Shop A', units: 3, currentCapacity: 20, maxCapacity: 25, departmentId: 'CIT', prerequisites: []),
   ];
 
-  static final List<Department> departments = [
-    Department(code: 'CCS', name: 'College of Computer Studies', dean: 'Dr. Roberto Chan', totalStudents: 420, totalCourses: 24, color: const Color(0xFF2563AB)),
-    Department(code: 'CBA', name: 'College of Business Administration', dean: 'Dr. Theresa Ang', totalStudents: 385, totalCourses: 18, color: const Color(0xFF7C3AED)),
-    Department(code: 'CON', name: 'College of Nursing', dean: 'Dr. Felicidad Roque', totalStudents: 290, totalCourses: 20, color: const Color(0xFFDB2777)),
-    Department(code: 'CEAS', name: 'College of Education', dean: 'Dr. Benjamin Lacson', totalStudents: 310, totalCourses: 16, color: const Color(0xFFD97706)),
+  // 3. ENROLLMENTS LIST
+  static final List<Enrollment> enrollments = [
+    Enrollment(id: 'e_1', studentId: 'uid_1', courseId: 'c_2', semester: '1st Sem 2024-2025', status: EnrollmentStatus.enrolled, dateRequested: DateTime(2024, 6, 10)),
+    Enrollment(id: 'e_2', studentId: 'uid_3', courseId: 'c_3', semester: '1st Sem 2024-2025', status: EnrollmentStatus.pending, dateRequested: DateTime(2024, 6, 15)),
+    Enrollment(id: 'e_3', studentId: 'uid_5', courseId: 'c_5', semester: '1st Sem 2024-2025', status: EnrollmentStatus.dropped, dateRequested: DateTime(2024, 6, 9)),
+    Enrollment(id: 'e_4', studentId: 'uid_6', courseId: 'c_6', semester: '1st Sem 2024-2025', status: EnrollmentStatus.pending, dateRequested: DateTime(2024, 6, 16)),
   ];
+
+  // 4. THE CORRECTED DEPARTMENTS LIST
+  static final List<Department> departments = [
+    Department(code: 'CAS', name: 'College of Arts and Sciences', dean: 'Dr. Maria Santos', totalStudents: 350, totalCourses: 20, color: const Color(0xFF2563AB)),
+    Department(code: 'CEA', name: 'College of Engineering and Architecture', dean: 'Engr. Roberto Chan', totalStudents: 480, totalCourses: 28, color: const Color(0xFFD97706)),
+    Department(code: 'CIT', name: 'College of Industrial Technology', dean: 'Dr. Benjamin Lacson', totalStudents: 290, totalCourses: 15, color: const Color(0xFF0891B2)),
+    Department(code: 'CCI', name: 'College of Computing and Informatics', dean: 'Dr. Elena Bautista', totalStudents: 420, totalCourses: 24, color: const Color(0xFF7C3AED)),
+    Department(code: 'COE', name: 'College of Education', dean: 'Dr. Theresa Ang', totalStudents: 310, totalCourses: 16, color: const Color(0xFF059669)),
+  ];
+
+  // --- UI CONSTANTS & ANALYTICS ---
 
   static const List<Color> avatarColors = [
     Color(0xFF2563AB),
@@ -44,12 +54,13 @@ class MockData {
     Color(0xFF0891B2),
   ];
 
+  // Updated to match the new colleges
   static Map<String, int> get enrollmentByProgram => {
-    'BS Computer Science': 185,
-    'BS Information Technology': 145,
-    'BS Business Administration': 210,
-    'BS Nursing': 165,
-    'BS Education': 120,
+    'CAS': 350,
+    'CEA': 480,
+    'CIT': 290,
+    'CCI': 420,
+    'COE': 310,
   };
 
   static List<Map<String, dynamic>> get monthlyEnrollment => [

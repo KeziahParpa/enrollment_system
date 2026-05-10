@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
+import '../models/student.dart'; // Added import
+import '../models/enrollment.dart'; // Added import
 import '../widgets/stat_card.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/avatar_widget.dart';
-import '../widgets/dashboard_components.dart'; // IMPORT THE NEW COMPONENTS
+import '../widgets/dashboard_components.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -164,7 +166,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentStudents(List recentStudents) {
+  Widget _buildRecentStudents(List<Student> recentStudents) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -197,14 +199,21 @@ class DashboardScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ...recentStudents.map(
-            (s) => Padding(
+          ...recentStudents.map((s) {
+            // Find this specific student's enrollment status, default to enrolled if not found
+            final enrollmentInfo = MockData.enrollments
+                .where((e) => e.studentId == s.id)
+                .firstOrNull;
+            final currentStatus =
+                enrollmentInfo?.status ?? EnrollmentStatus.enrolled;
+
+            return Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: Row(
                 children: [
                   AvatarWidget(
                     initials: s.initials,
-                    colorIndex: s.avatarColorIndex,
+                    colorIndex: s.studentId.hashCode % 6, // Fixed color index!
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -220,7 +229,7 @@ class DashboardScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${s.id} · ${s.program.replaceFirst('BS ', '')}',
+                          '${s.studentId} · ${s.program.replaceFirst('BS ', '')}',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 11,
                             color: AppTheme.textSecondary,
@@ -229,11 +238,11 @@ class DashboardScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  StatusBadge(status: s.status),
+                  StatusBadge(status: currentStatus), // Fixed status!
                 ],
               ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
