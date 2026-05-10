@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
-import '../models/course.dart'; // Updated import
+import '../models/course.dart';
 import '../widgets/page_header.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({super.key});
-
   @override
   State<CoursesScreen> createState() => _CoursesScreenState();
 }
 
 class _CoursesScreenState extends State<CoursesScreen> {
   String _search = '';
-  String? _filterDepartment; // Changed from Program to Department
   List<Course> _courses = [];
 
   @override
@@ -24,13 +22,9 @@ class _CoursesScreenState extends State<CoursesScreen> {
   }
 
   List<Course> get _filtered => _courses.where((c) {
-    final matchSearch =
-        _search.isEmpty ||
+    return _search.isEmpty ||
         c.title.toLowerCase().contains(_search.toLowerCase()) ||
         c.code.toLowerCase().contains(_search.toLowerCase());
-    // Match against the new departmentId field
-    final matchDept = _filterDepartment == null || c.departmentId == _filterDepartment;
-    return matchSearch && matchDept;
   }).toList();
 
   @override
@@ -38,11 +32,10 @@ class _CoursesScreenState extends State<CoursesScreen> {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PageHeader(
             title: 'Course Management',
-            subtitle: '${_courses.length} courses in the database',
+            subtitle: '${_courses.length} CCI courses active',
             actions: [
               ElevatedButton.icon(
                 onPressed: () => _showCourseForm(null),
@@ -52,115 +45,15 @@ class _CoursesScreenState extends State<CoursesScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildFilters(),
+          TextField(
+            onChanged: (v) => setState(() => _search = v),
+            decoration: const InputDecoration(
+              hintText: 'Search courses...',
+              prefixIcon: Icon(Icons.search_rounded),
+            ),
+          ),
           const SizedBox(height: 16),
           Expanded(child: _buildCourseGrid()),
-        ],
-      ),
-    );
-  }
-
-  void _showCourseForm(Course? existing) {
-    final codeCtrl = TextEditingController(text: existing?.code ?? '');
-    final titleCtrl = TextEditingController(text: existing?.title ?? '');
-    final instructorCtrl = TextEditingController(
-      text: existing?.instructorId ?? '', // Changed to instructorId
-    );
-    final capCtrl = TextEditingController(
-      text: existing?.maxCapacity.toString() ?? '40', // Changed to maxCapacity
-    );
-    String selectedDept = existing?.departmentId ?? 'CCS'; // Changed to departmentId
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(existing == null ? 'Create Course' : 'Edit Course'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _formField('Course Code', codeCtrl),
-                const SizedBox(height: 12),
-                _formField('Course Title', titleCtrl),
-                const SizedBox(height: 12),
-                _formField('Instructor ID', instructorCtrl),
-                const SizedBox(height: 12),
-                _formField('Max Capacity', capCtrl, isNumber: true),
-                const SizedBox(height: 12),
-                _formDropdown(
-                  'Department',
-                  selectedDept,
-                  ['CCS', 'CBA', 'CON', 'CEAS'], // Department codes
-                  (v) => setDialogState(() => selectedDept = v!),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Creating the new course using the updated model parameters
-                final newCourse = Course(
-                  id: existing?.id ?? 'c_${DateTime.now().millisecondsSinceEpoch}', // Dummy ID generator
-                  code: codeCtrl.text,
-                  title: titleCtrl.text,
-                  instructorId: instructorCtrl.text,
-                  schedule: existing?.schedule ?? 'TBA',
-                  room: existing?.room ?? 'TBA',
-                  units: existing?.units ?? 3,
-                  currentCapacity: existing?.currentCapacity ?? 0,
-                  maxCapacity: int.tryParse(capCtrl.text) ?? 40,
-                  departmentId: selectedDept,
-                  prerequisites: existing?.prerequisites ?? [],
-                );
-
-                setState(() {
-                  if (existing == null) {
-                    _courses.add(newCourse);
-                  } else {
-                    final index = _courses.indexWhere((c) => c.id == existing.id);
-                    if (index != -1) _courses[index] = newCourse;
-                  }
-                });
-                Navigator.pop(ctx);
-              },
-              child: const Text('Save Course'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirm(Course course) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Remove Course'),
-        content: Text('Are you sure you want to delete ${course.code}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.danger),
-            onPressed: () {
-              setState(
-                () => _courses.removeWhere((c) => c.id == course.id), // Delete by ID
-              );
-              Navigator.pop(ctx);
-            },
-            child: const Text('Delete'),
-          ),
         ],
       ),
     );
@@ -197,22 +90,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
                 course.code,
                 style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w800,
-                  color: AppTheme.primary,
+                  color: AppTheme.primaryLight,
                 ),
               ),
               const Spacer(),
-              IconButton(
-                onPressed: () => _showCourseForm(course),
-                icon: const Icon(Icons.edit_outlined, size: 18),
-              ),
-              IconButton(
-                onPressed: () => _showDeleteConfirm(course),
-                icon: const Icon(
-                  Icons.delete_outline,
-                  size: 18,
-                  color: AppTheme.danger,
-                ),
-              ),
+              const Icon(Icons.edit_outlined, size: 18),
             ],
           ),
           Text(
@@ -221,38 +103,106 @@ class _CoursesScreenState extends State<CoursesScreen> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          Text(
-            'Instructor ID: ${course.instructorId}', // Using instructorId
-            style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-          ),
           const Spacer(),
+          // Capacity Monitoring Visual Indicator
           LinearProgressIndicator(
             value: course.fillRate,
             backgroundColor: AppTheme.border,
-            color: AppTheme.primaryLight,
+            color: course.isFull ? AppTheme.danger : AppTheme.primaryLight,
           ),
           const SizedBox(height: 4),
           Text(
-            '${course.currentCapacity}/${course.maxCapacity} Students', // Updated capacities
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+            '${course.currentCapacity}/${course.maxCapacity} Students',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: course.isFull ? AppTheme.danger : AppTheme.textPrimary,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _formField(
-    String label,
-    TextEditingController ctrl, {
-    bool isNumber = false,
-  }) {
-    return TextField(
-      controller: ctrl,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: AppTheme.bgMain,
+  void _showCourseForm(Course? existing) {
+    final codeCtrl = TextEditingController(text: existing?.code ?? '');
+    final titleCtrl = TextEditingController(text: existing?.title ?? '');
+    final capCtrl = TextEditingController(
+      text: existing?.maxCapacity.toString() ?? '40',
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(existing == null ? 'Create Course' : 'Edit Course'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _formField('Course Code', codeCtrl),
+            _formField('Course Title', titleCtrl),
+            _formField('Max Capacity', capCtrl),
+            const SizedBox(height: 12),
+            // Locked Department to CCI
+            _formDropdown('Department', 'CCI', ['CCI'], (v) {}),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              final c = Course(
+                id:
+                    existing?.id ??
+                    'c_${DateTime.now().millisecondsSinceEpoch}',
+                code: codeCtrl.text,
+                title: titleCtrl.text,
+                instructorId: 'prof_1',
+                schedule: 'TBA',
+                room: 'TBA',
+                units: 3,
+                currentCapacity: 0,
+                maxCapacity: int.tryParse(capCtrl.text) ?? 40,
+                departmentId: 'CCI',
+              );
+              setState(() {
+                if (existing == null)
+                  _courses.add(c);
+                else {
+                  final i = _courses.indexWhere((x) => x.id == existing.id);
+                  _courses[i] = c;
+                }
+              });
+              Navigator.pop(ctx);
+            },
+            child: const Text('Save Course'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _formField(String label, TextEditingController ctrl) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: ctrl,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: AppTheme.bgMain,
+          // FIX: Changed BorderSide.none to InputBorder.none
+          border: InputBorder.none,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppTheme.primaryLight,
+              width: 2,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -263,45 +213,26 @@ class _CoursesScreenState extends State<CoursesScreen> {
     List<String> items,
     ValueChanged<String?> onChanged,
   ) {
-    return DropdownButtonFormField<String>(
-      initialValue: value,
-      items: items
-          .map((i) => DropdownMenuItem(value: i, child: Text(i)))
-          .toList(),
-      onChanged: onChanged,
-      decoration: InputDecoration(labelText: label),
-    );
-  }
-
-  Widget _buildFilters() {
-    final departments = MockData.courses.map((c) => c.departmentId).toSet().toList();
-    return Row(
-      children: [
-        Expanded(
-          flex: 3,
-          child: TextField(
-            onChanged: (v) => setState(() => _search = v),
-            decoration: InputDecoration(
-              hintText: 'Search courses by code or title...',
-              prefixIcon: const Icon(Icons.search_rounded),
-            ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        items: items
+            .map((i) => DropdownMenuItem(value: i, child: Text(i)))
+            .toList(),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: AppTheme.bgMain,
+          // FIX: Ensure consistency here as well
+          border: InputBorder.none,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
           ),
         ),
-        const SizedBox(width: 10),
-        DropdownButton<String?>(
-          value: _filterDepartment,
-          hint: const Text('All Departments'),
-          items: [null, ...departments]
-              .map(
-                (d) => DropdownMenuItem(
-                  value: d,
-                  child: Text(d ?? 'All Departments'),
-                ),
-              )
-              .toList(),
-          onChanged: (v) => setState(() => _filterDepartment = v),
-        ),
-      ],
+      ),
     );
   }
 }
