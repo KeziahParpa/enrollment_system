@@ -41,7 +41,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Student account not found in database.'), backgroundColor: AppTheme.danger),
+          const SnackBar(
+            content: Text('Student account not found in database.'),
+            backgroundColor: AppTheme.danger,
+          ),
         );
       }
       return;
@@ -49,7 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // 3. INVALID FORMAT
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invalid ISAT-U email address.'), backgroundColor: AppTheme.warning),
+      const SnackBar(
+        content: Text('Invalid ISAT-U email address.'),
+        backgroundColor: AppTheme.warning,
+      ),
     );
   }
 
@@ -72,7 +78,11 @@ class _LoginScreenState extends State<LoginScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
             ],
           ),
           child: Column(
@@ -82,32 +92,72 @@ class _LoginScreenState extends State<LoginScreen> {
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: AppTheme.primaryLight.withOpacity(0.1), shape: BoxShape.circle),
-                  child: const Icon(Icons.school_rounded, size: 48, color: AppTheme.primary),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryLight.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.school_rounded,
+                    size: 48,
+                    color: AppTheme.primary,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
               Center(
-                child: Text('ISAT-U Portal', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                child: Text(
+                  'ISAT-U Portal',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
               ),
               Center(
-                child: Text('Sign in to continue', style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppTheme.textSecondary)),
+                child: Text(
+                  'Sign in to continue',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
               ),
               const SizedBox(height: 32),
-              Text('Email Address', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+              Text(
+                'Email Address',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
               const SizedBox(height: 8),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  hintText: 'e.g., admin@isatu.edu',
+                  hintText: 'username or email',
                   filled: true,
                   fillColor: AppTheme.bgMain,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Password', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+              Text(
+                'Password',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
               const SizedBox(height: 8),
               TextField(
                 controller: _passwordController,
@@ -116,8 +166,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: '••••••••',
                   filled: true,
                   fillColor: AppTheme.bgMain,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -128,9 +184,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text('Sign In', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
+                  child: Text(
+                    'Sign In',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ],
