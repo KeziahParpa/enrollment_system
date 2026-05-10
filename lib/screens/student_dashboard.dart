@@ -5,7 +5,7 @@ import '../utils/mock_data.dart';
 import '../models/student.dart';
 import '../models/course.dart';
 import '../models/enrollment.dart';
-import '../widgets/status_badge.dart'; // Keep if you use it elsewhere
+// Keep if you use it elsewhere
 
 class StudentDashboard extends StatefulWidget {
   final String studentId; 
