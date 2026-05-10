@@ -6,6 +6,7 @@ import '../models/student.dart';
 import '../models/enrollment.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/status_badge.dart';
+import '../widgets/dashboard_components.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -21,8 +22,25 @@ class DashboardScreen extends StatelessWidget {
           const SizedBox(height: 24),
           _buildStatCards(),
           const SizedBox(height: 24),
-          // Charts Row removed as requested
-          _buildMasterEnrollmentList(),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: EnrollmentTrendChart(
+                  monthlyData: MockData.monthlyEnrollment,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: ProgramDistributionChart(
+                  data: MockData.enrollmentByProgram,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildMasterEnrollmentList(), // Global Overview requirement
         ],
       ),
     );
@@ -55,7 +73,6 @@ class DashboardScreen extends StatelessWidget {
     return GridView.count(
       crossAxisCount: 4,
       crossAxisSpacing: 14,
-      mainAxisSpacing: 14,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
@@ -186,16 +203,14 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Student _fallbackStudent() {
-    return Student(
-      id: 'error',
-      studentId: 'Unknown',
-      firstName: 'Unknown',
-      lastName: 'Student',
-      email: '',
-      phone: '',
-      program: 'Unknown',
-      yearLevel: '',
-    );
-  }
+  Student _fallbackStudent() => Student(
+    id: '',
+    studentId: '',
+    firstName: 'Unknown',
+    lastName: '',
+    email: '',
+    phone: '',
+    program: '',
+    yearLevel: '',
+  );
 }
