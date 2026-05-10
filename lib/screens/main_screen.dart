@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import 'dashboard_screen.dart';
 import 'students_screen.dart';
 import 'courses_screen.dart';
+import 'profile_screen.dart'; // NEW IMPORT
 import 'settings_screen.dart';
 import 'login_screen.dart';
 
@@ -17,7 +18,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // Removed Departments and Reports
+  // Added Profile to the main navigation items
   final List<_NavItem> _navItems = const [
     _NavItem(
       icon: Icons.dashboard_rounded,
@@ -34,13 +35,20 @@ class _MainScreenState extends State<MainScreen> {
       label: 'Courses',
       activeIcon: Icons.menu_book_rounded,
     ),
+    _NavItem(
+      icon: Icons.person_outline_rounded,
+      label: 'Profile',
+      activeIcon: Icons.person_rounded,
+    ),
   ];
 
+  // Added ProfileScreen to the rendering list
   final List<Widget> _screens = const [
     DashboardScreen(),
     StudentsScreen(),
     CoursesScreen(),
-    SettingsScreen(),
+    ProfileScreen(), // Index 3
+    SettingsScreen(), // Index 4
   ];
 
   @override
@@ -63,7 +71,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildTopBar() {
-    final titles = ['Dashboard', 'Students', 'Courses', 'Settings'];
+    // Added Profile to titles!
+    final titles = ['Dashboard', 'Students', 'Courses', 'Profile', 'Settings'];
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -81,7 +90,6 @@ class _MainScreenState extends State<MainScreen> {
               color: AppTheme.textSecondary,
             ),
           ),
-          // Removed notification btn, help btn, and admin dropdown
         ],
       ),
     );
@@ -111,11 +119,12 @@ class _MainScreenState extends State<MainScreen> {
           const SizedBox(height: 8),
           ...List.generate(_navItems.length, (i) => _buildNavItem(i)),
           const Spacer(),
+          // Settings is now safely set to Index 4
           _buildNavItemCustom(
             icon: Icons.settings_outlined,
             activeIcon: Icons.settings_rounded,
             label: 'Settings',
-            index: 3,
+            index: 4, 
           ),
           _buildSidebarUser(),
           const SizedBox(height: 12),
@@ -169,7 +178,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   Text(
-                    'admin@isatu.edu.ph',
+                    'admin@isatu.edu',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 10,
                       color: AppTheme.sidebarText.withOpacity(0.5),
@@ -179,7 +188,6 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
             ),
-            // Functional Sign Out Button
             IconButton(
               icon: Icon(
                 Icons.logout_rounded,
@@ -234,11 +242,11 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildNavItem(int index) => _buildNavItemCustom(
-    icon: _navItems[index].icon,
-    activeIcon: _navItems[index].activeIcon,
-    label: _navItems[index].label,
-    index: index,
-  );
+        icon: _navItems[index].icon,
+        activeIcon: _navItems[index].activeIcon,
+        label: _navItems[index].label,
+        index: index,
+      );
 
   Widget _buildNavItemCustom({
     required IconData icon,
