@@ -1,104 +1,55 @@
-import 'package:flutter/material.dart';
-
-enum EnrollmentStatus { enrolled, pending, dropped, graduated }
-
 class Student {
-  final String id;
+  final String id; // Maps to Firebase Auth UID
+  final String studentId; 
   final String firstName;
   final String lastName;
   final String email;
   final String phone;
   final String program;
   final String yearLevel;
-  final String section;
-  final EnrollmentStatus status;
-  final DateTime enrolledDate;
-  final int avatarColorIndex;
+  final double gpa; // Added from Class Diagram
 
   Student({
     required this.id,
+    required this.studentId,
     required this.firstName,
     required this.lastName,
     required this.email,
     required this.phone,
     required this.program,
     required this.yearLevel,
-    required this.section,
-    required this.status,
-    required this.enrolledDate,
-    this.avatarColorIndex = 0,
+    this.gpa = 0.0,
   });
 
   String get fullName => '$firstName $lastName';
   String get initials => '${firstName[0]}${lastName[0]}'.toUpperCase();
 
-  Student copyWith({
-    String? firstName,
-    String? lastName,
-    String? email,
-    String? phone,
-    String? program,
-    String? yearLevel,
-    String? section,
-    EnrollmentStatus? status,
-  }) {
+  // Convert Firestore Document to Dart Object
+  factory Student.fromMap(Map<String, dynamic> map, String documentId) {
     return Student(
-      id: id,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      email: email ?? this.email,
-      phone: phone ?? this.phone,
-      program: program ?? this.program,
-      yearLevel: yearLevel ?? this.yearLevel,
-      section: section ?? this.section,
-      status: status ?? this.status,
-      enrolledDate: enrolledDate,
-      avatarColorIndex: avatarColorIndex,
+      id: documentId,
+      studentId: map['studentId'] ?? '',
+      firstName: map['firstName'] ?? '',
+      lastName: map['lastName'] ?? '',
+      email: map['email'] ?? '',
+      phone: map['phone'] ?? '',
+      program: map['program'] ?? '',
+      yearLevel: map['yearLevel'] ?? '',
+      gpa: (map['gpa'] ?? 0.0).toDouble(),
     );
   }
-}
 
-class Course {
-  final String code;
-  final String title;
-  final String instructor;
-  final String schedule;
-  final String room;
-  final int units;
-  final int enrolled;
-  final int capacity;
-  final String program;
-
-  Course({
-    required this.code,
-    required this.title,
-    required this.instructor,
-    required this.schedule,
-    required this.room,
-    required this.units,
-    required this.enrolled,
-    required this.capacity,
-    required this.program,
-  });
-
-  double get fillRate => enrolled / capacity;
-  bool get isFull => enrolled >= capacity;
-}
-
-class Department {
-  final String code;
-  final String name;
-  final String dean;
-  final int totalStudents;
-  final int totalCourses;
-  final Color color;
-
-  Department({
-    required this.code,
-    required this.name,
-    required this.dean,
-    required this.totalStudents,
-    required this.totalCourses,
-    required this.color,
-  });
+  // Convert Dart Object to Firestore Document
+  Map<String, dynamic> toMap() {
+    return {
+      'studentId': studentId,
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'phone': phone,
+      'program': program,
+      'yearLevel': yearLevel,
+      'gpa': gpa,
+    };
+  }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
-import '../models/student.dart';
+import '../models/department.dart'; // Fixed import!
 import '../widgets/page_header.dart';
 
 class DepartmentsScreen extends StatelessWidget {
