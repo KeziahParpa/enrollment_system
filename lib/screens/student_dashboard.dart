@@ -5,7 +5,7 @@ import '../utils/mock_data.dart';
 import '../models/student.dart';
 import '../models/course.dart';
 import '../models/enrollment.dart';
-import '../widgets/status_badge.dart';
+import '../controllers/enrollment_controller.dart';
 
 class StudentDashboard extends StatefulWidget {
   final String studentId; // Dynamically accepts the logged-in user
@@ -26,59 +26,29 @@ class _StudentDashboardState extends State<StudentDashboard> {
       .where((e) => e.studentId == widget.studentId && e.status != EnrollmentStatus.dropped)
       .toList();
 
+  // --- CLEANED UP ENROLL LOGIC ---
   void _handleEnroll(Course course) {
-    if (!course.hasSpace) {
-      _showMsg("Course is full!", isError: true);
+    // 1. Ask the Brain if we can enroll
+    String? validationError = EnrollmentController.canEnroll(me, course);
+
+    // 2. If the Brain returns an error message, show it and STOP.
+    if (validationError != null) {
+      _showMsg(validationError, isError: true);
       return;
     }
 
-    bool alreadyEnrolled = MockData.enrollments.any(
-        (e) => e.studentId == widget.studentId && e.courseId == course.id && e.status != EnrollmentStatus.dropped);
-
-    if (alreadyEnrolled) {
-      _showMsg("You are already enrolled in this course.", isError: true);
-      return;
-    }
-
+    // 3. If validation passed, let the Brain process it
     setState(() {
-      MockData.enrollments.add(Enrollment(
-        id: 'e_${DateTime.now().millisecondsSinceEpoch}',
-        studentId: widget.studentId, // Links to this exact student
-        courseId: course.id,
-        semester: '1st Sem 2026',
-        status: EnrollmentStatus.enrolled,
-        dateRequested: DateTime.now(),
-      ));
-
-      final courseIdx = MockData.courses.indexWhere((c) => c.id == course.id);
-      if (courseIdx != -1) {
-        final c = MockData.courses[courseIdx];
-        MockData.courses[courseIdx] = Course(
-          id: c.id, code: c.code, title: c.title, instructorId: c.instructorId,
-          schedule: c.schedule, room: c.room, units: c.units, 
-          currentCapacity: c.currentCapacity + 1, 
-          maxCapacity: c.maxCapacity, departmentId: c.departmentId, prerequisites: c.prerequisites,
-        );
-      }
+      EnrollmentController.processEnrollment(me, course);
     });
+    
     _showMsg("Successfully enrolled in ${course.code}");
   }
 
+  // --- CLEANED UP DROP LOGIC ---
   void _handleDrop(Enrollment enrollment) {
     setState(() {
-      final idx = MockData.enrollments.indexWhere((e) => e.id == enrollment.id);
-      if (idx != -1) MockData.enrollments[idx] = enrollment.copyWithStatus(EnrollmentStatus.dropped);
-
-      final courseIdx = MockData.courses.indexWhere((c) => c.id == enrollment.courseId);
-      if (courseIdx != -1) {
-        final c = MockData.courses[courseIdx];
-        MockData.courses[courseIdx] = Course(
-          id: c.id, code: c.code, title: c.title, instructorId: c.instructorId,
-          schedule: c.schedule, room: c.room, units: c.units, 
-          currentCapacity: c.currentCapacity - 1, 
-          maxCapacity: c.maxCapacity, departmentId: c.departmentId, prerequisites: c.prerequisites,
-        );
-      }
+      EnrollmentController.processDrop(enrollment);
     });
     _showMsg("Course dropped successfully.");
   }

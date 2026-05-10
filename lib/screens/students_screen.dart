@@ -1,6 +1,5 @@
 // lib/screens/students_screen.dart
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
 import '../models/student.dart';
 import '../widgets/page_header.dart';
@@ -13,12 +12,13 @@ class StudentsScreen extends StatefulWidget {
 
 class _StudentsScreenState extends State<StudentsScreen> {
   String _search = '';
-  String? _filterYear; // Changed filter to Year Level
-  List<Student> _students = List.from(MockData.students);
+  String? _filterYear;
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _students.where((s) {
+    // FIX 1: We filter directly from MockData.students instead of a local copy!
+    // This ensures your list is always looking at the global, updated database.
+    final filtered = MockData.students.where((s) {
       final matchSearch = s.fullName.toLowerCase().contains(
         _search.toLowerCase(),
       );
@@ -36,7 +36,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
             actions: [
               ElevatedButton.icon(
                 onPressed: () =>
-                    _showStudentForm(context, null), // Multi-line form
+                    _showStudentForm(context, null), 
                 icon: const Icon(Icons.add_rounded),
                 label: const Text('Add Student'),
               ),
@@ -132,7 +132,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     ),
                   ],
                 ),
-                // Locked Program Field
                 const TextField(
                   enabled: false,
                   decoration: InputDecoration(
@@ -146,18 +145,38 @@ class _StudentsScreenState extends State<StudentsScreen> {
           actions: [
             ElevatedButton(
               onPressed: () {
+                // Prepare the email and password strings
+                final newEmail = emailCtrl.text.trim().toLowerCase();
+                final newPassword = passCtrl.text;
+
                 final s = Student(
                   id: 'uid_${DateTime.now().millisecondsSinceEpoch}',
-                  studentId: '2024-${_students.length + 1}',
-                  firstName: firstCtrl.text,
-                  lastName: lastCtrl.text,
-                  email: emailCtrl.text,
-                  phone: '',
+                  studentId: '2024-${MockData.students.length + 1}', // Auto-generates the next ID
+                  firstName: firstCtrl.text.trim(),
+                  lastName: lastCtrl.text.trim(),
+                  email: newEmail,
+                  phone: '00000000000', // Default empty phone to avoid null errors
                   program: 'BS Computer Science',
                   yearLevel: selectedYear,
+                  gpa: 0.0, // Brand new student starts with 0.0 GPA
                 );
-                setState(() => _students.add(s));
+
+                setState(() {
+                  // FIX 2: Save the student to the GLOBAL MockData list
+                  MockData.students.add(s);
+                  
+                  // FIX 3: Save the email and password to the Auth Database!
+                  if (newPassword.isNotEmpty) {
+                    MockData.userCredentials[newEmail] = newPassword;
+                  }
+                });
+
                 Navigator.pop(ctx);
+                
+                // Show a quick success message so the admin knows it worked
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${s.firstName} added! They can now log in.')),
+                );
               },
               child: const Text('Add Student'),
             ),
@@ -205,7 +224,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
     itemCount: list.length,
     itemBuilder: (ctx, i) => ListTile(
       title: Text(list[i].fullName),
-      subtitle: Text(list[i].yearLevel),
+      subtitle: Text('${list[i].yearLevel} • ${list[i].email}'), // Added email so you can see it easily
     ),
   );
 }
