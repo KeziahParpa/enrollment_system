@@ -1,13 +1,13 @@
-enum EnrollmentStatus { pending, enrolled, waitlisted, dropped, completed }
+enum EnrollmentStatus { enrolled, pending, dropped, waitlisted, completed }
 
 class Enrollment {
-  final String id; // Firestore Document ID
+  final String id;
   final String studentId;
   final String courseId;
   final String semester;
   final EnrollmentStatus status;
   final DateTime dateRequested;
-  final double? grade; // Nullable, as they don't have a grade upon enrolling
+  final double? grade;
 
   Enrollment({
     required this.id,
@@ -18,6 +18,18 @@ class Enrollment {
     required this.dateRequested,
     this.grade,
   });
+
+  Enrollment copyWithStatus(EnrollmentStatus newStatus) {
+    return Enrollment(
+      id: id,
+      studentId: studentId,
+      courseId: courseId,
+      semester: semester,
+      status: newStatus, 
+      dateRequested: dateRequested,
+      grade: grade,
+    );
+  }  
 
   // Convert Firestore Document to Dart Object
   factory Enrollment.fromMap(Map<String, dynamic> map, String documentId) {
@@ -43,7 +55,7 @@ class Enrollment {
       'studentId': studentId,
       'courseId': courseId,
       'semester': semester,
-      'status': status.name, // Saves as a readable string in Firebase
+      'status': status.name, 
       'dateRequested': dateRequested.toIso8601String(),
       'grade': grade,
     };

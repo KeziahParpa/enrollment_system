@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; 
-import 'main_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_theme.dart';
+import '../utils/mock_data.dart';
+import 'main_screen.dart'; // The Admin Dashboard
+import 'student_dashboard.dart'; // The Student Dashboard
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,149 +13,130 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
-
-  // Color constants based on existing UI
-  final Color backgroundGray = const Color(0xFFF1F4F9);
-  final Color cardWhite = Colors.white;
-  final Color inputFieldGray = const Color(0xFFF3F3F3);
-  final Color primaryPurple = const Color(0xFF4C4BB3);
+  final TextEditingController _passwordController = TextEditingController();
 
   void _handleLogin() {
-    // This checks if the validator functions return null (meaning they passed)
-    if (_formKey.currentState!.validate()) {
+    final email = _emailController.text.trim().toLowerCase();
+
+    // 1. ADMIN CHECK
+    if (email == 'admin@isatu.edu') {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
       );
+      return;
     }
+
+    // 2. STUDENT CHECK
+    if (email.endsWith('@students.isatu.edu')) {
+      try {
+        final student = MockData.students.firstWhere((s) => s.email == email);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudentDashboard(studentId: student.id),
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Student account not found in database.'), backgroundColor: AppTheme.danger),
+        );
+      }
+      return;
+    }
+
+    // 3. INVALID FORMAT
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Invalid ISAT-U email address.'), backgroundColor: AppTheme.warning),
+    );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundGray, //
+      backgroundColor: AppTheme.bgMain,
       body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
-                decoration: BoxDecoration(
-                  color: cardWhite, //
-                  borderRadius: BorderRadius.circular(28.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey, // Links the form to the validation key
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        'assets/logo.jpg',
-                        height: 100,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.school, size: 50),
-                      ),
-                      const SizedBox(height: 25),
-                      const Text(
-                        'Welcome to Isat University',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      const SizedBox(height: 35),
-
-                      // Validated Email Field
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        inputFormatters: [LowerCaseTextFormatter()],
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.email_outlined, size: 20),
-                          hintText: 'Email',
-                          filled: true,
-                          fillColor: inputFieldGray, //
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                          errorStyle: const TextStyle(fontSize: 11),
-                        ),
-                        // Pattern Validation Logic
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          // Regex for firstname.lastname@students.isatu.edu.ph
-                          final emailRegex = RegExp(r'^[a-z0-9-]+\.[a-z0-9-]+@students\.isatu\.edu\.ph$');
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Incorrect Username';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Password Field
-                      TextFormField(
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.lock_outline, size: 20),
-                          hintText: 'Password',
-                          filled: true,
-                          fillColor: inputFieldGray, //
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Sign In Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryPurple, //
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                          ),
-                          child: const Text('SIGN IN', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                    ],
-                  ),
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.all(40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10)),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: AppTheme.primaryLight.withOpacity(0.1), shape: BoxShape.circle),
+                  child: const Icon(Icons.school_rounded, size: 48, color: AppTheme.primary),
                 ),
               ),
-            ),
+              const SizedBox(height: 24),
+              Center(
+                child: Text('ISAT-U Portal', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+              ),
+              Center(
+                child: Text('Sign in to continue', style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppTheme.textSecondary)),
+              ),
+              const SizedBox(height: 32),
+              Text('Email Address', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  hintText: 'e.g., admin@isatu.edu',
+                  filled: true,
+                  fillColor: AppTheme.bgMain,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Password', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: '••••••••',
+                  filled: true,
+                  fillColor: AppTheme.bgMain,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('Sign In', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
-  }
-}
-
-class LowerCaseTextFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    return newValue.copyWith(text: newValue.text.toLowerCase());
   }
 }

@@ -7,12 +7,12 @@ import '../models/department.dart';
 class MockData {
   // 1. UPDATED STUDENTS LIST (Mapped to new programs)
   static final List<Student> students = [
-    Student(id: 'uid_1', studentId: '2024-0001', firstName: 'Maria', lastName: 'Santos', email: 'maria.santos@school.edu', phone: '09171234567', program: 'BS Computer Science', yearLevel: '3rd Year', gpa: 1.5),
-    Student(id: 'uid_2', studentId: '2024-0002', firstName: 'Juan', lastName: 'dela Cruz', email: 'juan.delacruz@school.edu', phone: '09182345678', program: 'BS Information Technology', yearLevel: '2nd Year', gpa: 2.1),
-    Student(id: 'uid_3', studentId: '2024-0003', firstName: 'Ana', lastName: 'Reyes', email: 'ana.reyes@school.edu', phone: '09193456789', program: 'BS Civil Engineering', yearLevel: '1st Year', gpa: 1.75),
-    Student(id: 'uid_4', studentId: '2024-0004', firstName: 'Carlos', lastName: 'Mendoza', email: 'carlos.mendoza@school.edu', phone: '09204567890', program: 'BS Architecture', yearLevel: '4th Year', gpa: 1.25),
-    Student(id: 'uid_5', studentId: '2024-0005', firstName: 'Liza', lastName: 'Garcia', email: 'liza.garcia@school.edu', phone: '09215678901', program: 'BS Biology', yearLevel: '2nd Year', gpa: 2.5),
-    Student(id: 'uid_6', studentId: '2024-0006', firstName: 'Ramon', lastName: 'Torres', email: 'ramon.torres@school.edu', phone: '09226789012', program: 'Bachelor of Secondary Education', yearLevel: '3rd Year', gpa: 1.8),
+    Student(id: 'uid_1', studentId: '2024-0001', firstName: 'Maria', lastName: 'Santos', email: 'maria.santos@students.isatu.edu', phone: '09171234567', program: 'BS Computer Science', yearLevel: '3rd Year', gpa: 1.5),
+    Student(id: 'uid_2', studentId: '2024-0002', firstName: 'Juan', lastName: 'dela Cruz', email: 'juan.delacruz@students.isatu.edu', phone: '09182345678', program: 'BS Information Technology', yearLevel: '2nd Year', gpa: 2.1),
+    Student(id: 'uid_3', studentId: '2024-0003', firstName: 'Ana', lastName: 'Reyes', email: 'ana.reyes@students.isatu.edu', phone: '09193456789', program: 'BS Civil Engineering', yearLevel: '1st Year', gpa: 1.75),
+    Student(id: 'uid_4', studentId: '2024-0004', firstName: 'Carlos', lastName: 'Mendoza', email: 'carlos.mendoza@students.isatu.edu', phone: '09204567890', program: 'BS Architecture', yearLevel: '4th Year', gpa: 1.25),
+    Student(id: 'uid_5', studentId: '2024-0005', firstName: 'Liza', lastName: 'Garcia', email: 'liza.garcia@students.isatu.edu', phone: '09215678901', program: 'BS Biology', yearLevel: '2nd Year', gpa: 2.5),
+    Student(id: 'uid_6', studentId: '2024-0006', firstName: 'Ramon', lastName: 'Torres', email: 'ramon.torres@students.isatu.edu', phone: '09226789012', program: 'Bachelor of Secondary Education', yearLevel: '3rd Year', gpa: 1.8),
   ];
 
   // 2. UPDATED COURSES LIST (Mapped to new Department IDs)
