@@ -79,13 +79,23 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // --- UPDATED LOGO SECTION ---
               Center(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: AppTheme.primaryLight.withOpacity(0.1), shape: BoxShape.circle),
-                  child: const Icon(Icons.school_rounded, size: 48, color: AppTheme.primary),
+                child: Image.asset(
+                  'assets/logo.jpg',
+                  height: 80, // Adjust this value to make the logo bigger or smaller
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback to the old icon if the image fails to load
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: AppTheme.primaryLight.withOpacity(0.1), shape: BoxShape.circle),
+                      child: const Icon(Icons.school_rounded, size: 48, color: AppTheme.primary),
+                    );
+                  },
                 ),
               ),
+              // ----------------------------
               const SizedBox(height: 24),
               Center(
                 child: Text('ISAT-U Portal', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
