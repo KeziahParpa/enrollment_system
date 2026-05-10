@@ -12,8 +12,7 @@ class EnrollmentApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Enrollment System', 
-      title: 'ISATU Enrollment',
+      title: 'ISATU Enrollment System',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Using your CAS/Primary blue color as the seed for the whole app
