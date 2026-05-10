@@ -1,9 +1,9 @@
+// lib/screens/students_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
 import '../models/student.dart';
-import '../widgets/avatar_widget.dart';
 import '../widgets/page_header.dart';
 
 class StudentsScreen extends StatefulWidget {
@@ -14,37 +14,31 @@ class StudentsScreen extends StatefulWidget {
 
 class _StudentsScreenState extends State<StudentsScreen> {
   String _search = '';
-  String? _filterYear; // Changed from Program to Year Level
-  List<Student> _students = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _students = List.from(MockData.students);
-  }
-
-  List<Student> get _filtered => _students.where((s) {
-    final matchSearch =
-        _search.isEmpty ||
-        s.fullName.toLowerCase().contains(_search.toLowerCase()) ||
-        s.studentId.contains(_search);
-    final matchYear = _filterYear == null || s.yearLevel == _filterYear;
-    return matchSearch && matchYear;
-  }).toList();
+  String? _filterYear; // Changed filter to Year Level
+  List<Student> _students = List.from(MockData.students);
 
   @override
   Widget build(BuildContext context) {
+    final filtered = _students.where((s) {
+      final matchSearch = s.fullName.toLowerCase().contains(
+        _search.toLowerCase(),
+      );
+      final matchYear = _filterYear == null || s.yearLevel == _filterYear;
+      return matchSearch && matchYear;
+    }).toList();
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           PageHeader(
             title: 'Students',
-            subtitle: '${_students.length} CS students enrolled',
+            subtitle: 'Computer Science Department',
             actions: [
               ElevatedButton.icon(
-                onPressed: () => _showStudentForm(context, null),
-                icon: const Icon(Icons.add_rounded, size: 18),
+                onPressed: () =>
+                    _showStudentForm(context, null), // Multi-line form
+                icon: const Icon(Icons.add_rounded),
                 label: const Text('Add Student'),
               ),
             ],
@@ -52,7 +46,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
           const SizedBox(height: 20),
           _buildFilters(),
           const SizedBox(height: 16),
-          Expanded(child: _buildStudentTable()),
+          Expanded(child: _buildStudentList(filtered)),
         ],
       ),
     );
@@ -64,19 +58,19 @@ class _StudentsScreenState extends State<StudentsScreen> {
         Expanded(
           child: TextField(
             onChanged: (v) => setState(() => _search = v),
-            decoration: const InputDecoration(
-              hintText: 'Search by name or ID...',
-              prefixIcon: Icon(Icons.search_rounded),
-            ),
+            decoration: const InputDecoration(hintText: 'Search students...'),
           ),
         ),
         const SizedBox(width: 10),
-        // Dropdown changed to Year Levels
-        _buildDropdown<String?>(
+        DropdownButton<String?>(
           value: _filterYear,
-          hint: 'Year Levels',
-          items: [null, '1st Year', '2nd Year', '3rd Year', '4th Year'],
-          label: (v) => v ?? 'All Year Levels',
+          hint: const Text('Year Levels'),
+          items: [null, '1st Year', '2nd Year', '3rd Year', '4th Year']
+              .map(
+                (y) =>
+                    DropdownMenuItem(value: y, child: Text(y ?? 'All Years')),
+              )
+              .toList(),
           onChanged: (v) => setState(() => _filterYear = v),
         ),
       ],
@@ -86,63 +80,87 @@ class _StudentsScreenState extends State<StudentsScreen> {
   void _showStudentForm(BuildContext context, Student? existing) {
     final firstCtrl = TextEditingController(text: existing?.firstName ?? '');
     final lastCtrl = TextEditingController(text: existing?.lastName ?? '');
+    final emailCtrl = TextEditingController(text: existing?.email ?? '');
+    final passCtrl = TextEditingController();
     String selectedYear = existing?.yearLevel ?? '1st Year';
+    String selectedSection = 'CS-A';
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(existing == null ? 'Add Student' : 'Edit Student'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _formField('First Name', firstCtrl),
-              const SizedBox(height: 12),
-              _formField('Last Name', lastCtrl),
-              const SizedBox(height: 12),
-              // Fixed program choice
-              _formDropdown(
-                label: 'Program',
-                value: 'BS Computer Science',
-                items: ['BS Computer Science'],
-                onChanged: (v) {},
-              ),
-              const SizedBox(height: 12),
-              _formDropdown(
-                label: 'Year Level',
-                value: selectedYear,
-                items: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
-                onChanged: (v) => setDialogState(() => selectedYear = v!),
-              ),
-            ],
+          title: Text(existing == null ? 'Add New Student' : 'Edit Student'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _formField('First Name', firstCtrl),
+                _formField('Last Name', lastCtrl),
+                Row(
+                  children: [
+                    Expanded(child: _formField('Email', emailCtrl)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: passCtrl,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Password',
+                          filled: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _formDropdown(
+                        'Section',
+                        selectedSection,
+                        ['CS-A', 'CS-B'],
+                        (v) => setDialogState(() => selectedSection = v!),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _formDropdown(
+                        'Year Level',
+                        selectedYear,
+                        ['1st Year', '2nd Year', '3rd Year', '4th Year'],
+                        (v) => setDialogState(() => selectedYear = v!),
+                      ),
+                    ),
+                  ],
+                ),
+                // Locked Program Field
+                const TextField(
+                  enabled: false,
+                  decoration: InputDecoration(
+                    labelText: 'BS Computer Science',
+                    hintText: 'BS Computer Science',
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             ElevatedButton(
               onPressed: () {
                 final s = Student(
-                  id:
-                      existing?.id ??
-                      'uid_${DateTime.now().millisecondsSinceEpoch}',
-                  studentId: existing?.studentId ?? '2024-0000',
+                  id: 'uid_${DateTime.now().millisecondsSinceEpoch}',
+                  studentId: '2024-${_students.length + 1}',
                   firstName: firstCtrl.text,
                   lastName: lastCtrl.text,
-                  email:
-                      '${firstCtrl.text.toLowerCase()}.${lastCtrl.text.toLowerCase()}@students.isatu.edu.ph',
+                  email: emailCtrl.text,
                   phone: '',
                   program: 'BS Computer Science',
                   yearLevel: selectedYear,
                 );
-                setState(() {
-                  if (existing == null)
-                    _students.add(s);
-                  else {
-                    final i = _students.indexWhere((x) => x.id == existing.id);
-                    _students[i] = s;
-                  }
-                });
+                setState(() => _students.add(s));
                 Navigator.pop(ctx);
               },
-              child: const Text('Save Student'),
+              child: const Text('Add Student'),
             ),
           ],
         ),
@@ -150,109 +168,45 @@ class _StudentsScreenState extends State<StudentsScreen> {
     );
   }
 
-  // ... _buildDropdown, _buildStudentTable, _formField remain consistent with original students_screen.dart ...
-  Widget _buildDropdown<T>({
-    required T value,
-    required String hint,
-    required List<T> items,
-    required String Function(T) label,
-    required ValueChanged<T?> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.border),
+  Widget _formField(String label, TextEditingController ctrl) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: TextField(
+      controller: ctrl,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        border: InputBorder.none,
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          value: value,
-          items: items
-              .map((i) => DropdownMenuItem(value: i, child: Text(label(i))))
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
+    ),
+  );
 
-  Widget _formDropdown({
-    required String label,
-    required String value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: AppTheme.bgMain,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              isExpanded: true,
-              items: items
-                  .map((i) => DropdownMenuItem(value: i, child: Text(i)))
-                  .toList(),
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _formField(String label, TextEditingController ctrl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: ctrl,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppTheme.bgMain,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStudentTable() {
-    final filtered = _filtered;
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
+  Widget _formDropdown(
+    String label,
+    String value,
+    List<String> items,
+    ValueChanged<String?> onChanged,
+  ) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
       ),
-      child: ListView.separated(
-        itemCount: filtered.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (ctx, i) => ListTile(
-          leading: AvatarWidget(initials: filtered[i].initials, colorIndex: i),
-          title: Text(filtered[i].fullName),
-          subtitle: Text(filtered[i].yearLevel),
-        ),
+      DropdownButton<String>(
+        value: value,
+        items: items
+            .map((i) => DropdownMenuItem(value: i, child: Text(i)))
+            .toList(),
+        onChanged: onChanged,
       ),
-    );
-  }
+    ],
+  );
+
+  Widget _buildStudentList(List<Student> list) => ListView.builder(
+    itemCount: list.length,
+    itemBuilder: (ctx, i) => ListTile(
+      title: Text(list[i].fullName),
+      subtitle: Text(list[i].yearLevel),
+    ),
+  );
 }
