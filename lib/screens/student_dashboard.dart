@@ -627,7 +627,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
             child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
           ),
           const SizedBox(width: 12),
-          Text('ISATU Student Portal', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
+          Text('Student Portal', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
         ],
       ),
     );

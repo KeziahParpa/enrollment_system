@@ -4,7 +4,7 @@ import '../theme/app_theme.dart';
 import 'dashboard_screen.dart';
 import 'students_screen.dart';
 import 'courses_screen.dart';
-import 'profile_screen.dart'; // NEW IMPORT
+import 'profile_screen.dart'; 
 import 'settings_screen.dart';
 import 'login_screen.dart';
 
@@ -18,7 +18,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // Added Profile to the main navigation items
   final List<_NavItem> _navItems = const [
     _NavItem(
       icon: Icons.dashboard_rounded,
@@ -42,8 +41,9 @@ class _MainScreenState extends State<MainScreen> {
     ),
   ];
 
-  // Added ProfileScreen to the rendering list
-  final List<Widget> _screens = const [
+  // FIX: Removed 'const' from this list to prevent crashes if 
+  // any of these child screens are StatefulWidgets!
+  final List<Widget> _screens = [
     DashboardScreen(),
     StudentsScreen(),
     CoursesScreen(),
@@ -71,7 +71,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildTopBar() {
-    // Added Profile to titles!
     final titles = ['Dashboard', 'Students', 'Courses', 'Profile', 'Settings'];
     return Container(
       height: 60,
@@ -119,7 +118,7 @@ class _MainScreenState extends State<MainScreen> {
           const SizedBox(height: 8),
           ...List.generate(_navItems.length, (i) => _buildNavItem(i)),
           const Spacer(),
-          // Settings is now safely set to Index 4
+          // Settings is safely anchored to index 4
           _buildNavItemCustom(
             icon: Icons.settings_outlined,
             activeIcon: Icons.settings_rounded,
@@ -229,7 +228,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           const SizedBox(width: 10),
           Text(
-            'ISATU Admin',
+            'Admin Portal',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w800,

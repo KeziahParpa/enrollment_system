@@ -1,237 +1,251 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
 import '../models/course.dart';
 import '../widgets/page_header.dart';
+import '../theme/app_theme.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({super.key});
+
   @override
   State<CoursesScreen> createState() => _CoursesScreenState();
 }
 
 class _CoursesScreenState extends State<CoursesScreen> {
-  String _search = '';
-  List<Course> _courses = [];
+  String _searchQuery = '';
+  String? _filterProgram;
 
-  @override
-  void initState() {
-    super.initState();
-    _courses = List.from(MockData.courses);
-  }
-
-  List<Course> get _filtered => _courses.where((c) {
-    return _search.isEmpty ||
-        c.title.toLowerCase().contains(_search.toLowerCase()) ||
-        c.code.toLowerCase().contains(_search.toLowerCase());
-  }).toList();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          PageHeader(
-            title: 'Course Management',
-            subtitle: '${_courses.length} CCI courses active',
-            actions: [
-              ElevatedButton.icon(
-                onPressed: () => _showCourseForm(null),
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Add New Course'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          TextField(
-            onChanged: (v) => setState(() => _search = v),
-            decoration: const InputDecoration(
-              hintText: 'Search courses...',
-              prefixIcon: Icon(Icons.search_rounded),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(child: _buildCourseGrid()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCourseGrid() {
-    final filtered = _filtered;
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
-        childAspectRatio: 1.4,
-      ),
-      itemCount: filtered.length,
-      itemBuilder: (ctx, i) => _buildCourseCard(filtered[i]),
-    );
-  }
-
-  Widget _buildCourseCard(Course course) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                course.code,
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryLight,
-                ),
-              ),
-              const Spacer(),
-              const Icon(Icons.edit_outlined, size: 18),
-            ],
-          ),
-          Text(
-            course.title,
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Spacer(),
-          // Capacity Monitoring Visual Indicator
-          LinearProgressIndicator(
-            value: course.fillRate,
-            backgroundColor: AppTheme.border,
-            color: course.isFull ? AppTheme.danger : AppTheme.primaryLight,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${course.currentCapacity}/${course.maxCapacity} Students',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: course.isFull ? AppTheme.danger : AppTheme.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showCourseForm(Course? existing) {
-    final codeCtrl = TextEditingController(text: existing?.code ?? '');
-    final titleCtrl = TextEditingController(text: existing?.title ?? '');
-    final capCtrl = TextEditingController(
-      text: existing?.maxCapacity.toString() ?? '40',
-    );
-
+  void _showDeleteConfirmation(Course c) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(existing == null ? 'Create Course' : 'Edit Course'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _formField('Course Code', codeCtrl),
-            _formField('Course Title', titleCtrl),
-            _formField('Max Capacity', capCtrl),
-            const SizedBox(height: 12),
-            // Locked Department to CCI
-            _formDropdown('Department', 'CCI', ['CCI'], (v) {}),
-          ],
-        ),
+        title: const Text('Delete Course?'),
+        content: Text('Are you sure you want to delete ${c.code}? This action cannot be undone.'),
         actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.danger),
             onPressed: () {
-              final c = Course(
-                id:
-                    existing?.id ??
-                    'c_${DateTime.now().millisecondsSinceEpoch}',
-                code: codeCtrl.text,
-                title: titleCtrl.text,
-                instructorId: 'prof_1',
-                schedule: 'TBA',
-                room: 'TBA',
-                units: 3,
-                currentCapacity: 0,
-                maxCapacity: int.tryParse(capCtrl.text) ?? 40,
-                departmentId: 'CCI',
-              );
               setState(() {
-                if (existing == null)
-                  _courses.add(c);
-                else {
-                  final i = _courses.indexWhere((x) => x.id == existing.id);
-                  _courses[i] = c;
-                }
+                MockData.courses.removeWhere((course) => course.id == c.id);
               });
               Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Course deleted successfully.'), backgroundColor: AppTheme.success),
+              );
             },
-            child: const Text('Save Course'),
+            child: const Text('Delete'),
           ),
         ],
       ),
     );
   }
 
-  Widget _formField(String label, TextEditingController ctrl) {
+  @override
+  Widget build(BuildContext context) {
+    // Filter logic
+    final filteredCourses = MockData.courses.where((c) {
+      final matchesSearch = c.title.toLowerCase().contains(_searchQuery.toLowerCase()) || 
+                            c.code.toLowerCase().contains(_searchQuery.toLowerCase());
+      
+      bool matchesProgram = true;
+      if (_filterProgram == 'Computer Science') matchesProgram = c.code.startsWith('CS') || c.code.startsWith('ICT') || c.code.startsWith('ANIM');
+      if (_filterProgram == 'Information Technology') matchesProgram = c.code.startsWith('IT');
+      if (_filterProgram == 'Information Systems') matchesProgram = c.code.startsWith('IS');
+
+      return matchesSearch && matchesProgram;
+    }).toList();
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: ctrl,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: AppTheme.bgMain,
-          // FIX: Changed BorderSide.none to InputBorder.none
-          border: InputBorder.none,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PageHeader(
+            title: 'Course Management',
+            subtitle: 'Manage curriculum, schedules, and capacity',
+            actions: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Add Course form coming soon!')),
+                  );
+                },
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Add New Course'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                ),
+              ),
+            ],
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.primaryLight,
-              width: 2,
-            ),
+          const SizedBox(height: 32),
+          
+          // SEARCH & FILTER BAR
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  onChanged: (v) => setState(() => _searchQuery = v),
+                  decoration: InputDecoration(
+                    hintText: 'Search course code or title...',
+                    prefixIcon: const Icon(Icons.search, size: 20),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10), 
+                      borderSide: const BorderSide(color: AppTheme.border)
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white, 
+                    border: Border.all(color: AppTheme.border), 
+                    borderRadius: BorderRadius.circular(10)
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String?>(
+                      isExpanded: true,
+                      value: _filterProgram,
+                      hint: const Text('All Programs', style: TextStyle(fontSize: 14)),
+                      items: [null, 'Computer Science', 'Information Technology', 'Information Systems']
+                          .map((p) => DropdownMenuItem(value: p, child: Text(p ?? 'All Programs', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600))))
+                          .toList(),
+                      onChanged: (v) => setState(() => _filterProgram = v),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
+          const SizedBox(height: 24),
+          
+          // HORIZONTAL LIST OF COURSES (Matching the Student UI)
+          Expanded(
+            child: filteredCourses.isEmpty
+              ? const Center(child: Text("No courses found.", style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)))
+              : ListView.builder(
+                  itemCount: filteredCourses.length,
+                  itemBuilder: (ctx, i) => _courseRow(filteredCourses[i]),
+                ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _formDropdown(
-    String label,
-    String value,
-    List<String> items,
-    ValueChanged<String?> onChanged,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        items: items
-            .map((i) => DropdownMenuItem(value: i, child: Text(i)))
-            .toList(),
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: AppTheme.bgMain,
-          // FIX: Ensure consistency here as well
-          border: InputBorder.none,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+  Widget _courseRow(Course c) {
+    bool isFull = !c.hasSpace;
+    bool hasPrereqs = c.prerequisites.isNotEmpty;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(
+        children: [
+          // 1. Course Code Block
+          Container(
+            width: 90,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryLight.withOpacity(0.1), 
+              borderRadius: BorderRadius.circular(8)
+            ),
+            child: Center(
+              child: Text(
+                c.code, 
+                style: const TextStyle(color: AppTheme.primaryLight, fontWeight: FontWeight.w900, fontSize: 13)
+              )
+            ),
           ),
-        ),
+          const SizedBox(width: 24),
+          
+          // 2. Title & Details
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(c.title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.textPrimary)),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.access_time_rounded, size: 14, color: AppTheme.textSecondary),
+                    const SizedBox(width: 6),
+                    Text('${c.schedule}  •  Room: ${c.room}', style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
+                  ],
+                ),
+                if (hasPrereqs) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.account_tree_rounded, size: 12, color: AppTheme.warning),
+                      const SizedBox(width: 6),
+                      Text("Requires: ${c.prerequisites.join(', ')}", style: const TextStyle(fontSize: 11, color: AppTheme.warning, fontWeight: FontWeight.w800)),
+                    ],
+                  )
+                ],
+              ],
+            ),
+          ),
+          
+          // 3. Stats (Units & Capacity)
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text("${c.units} Units", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
+                Text(
+                  "${c.currentCapacity}/${c.maxCapacity} Enrolled", 
+                  style: TextStyle(
+                    fontSize: 12, 
+                    color: isFull ? AppTheme.danger : AppTheme.success, 
+                    fontWeight: FontWeight.w700
+                  )
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 32),
+          
+          // 4. Admin Actions
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_note_rounded, color: AppTheme.primaryLight, size: 24),
+                tooltip: 'Edit Course',
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Editing ${c.code}... (Form coming soon)')),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.delete_sweep_rounded, color: AppTheme.danger, size: 24),
+                tooltip: 'Delete Course',
+                onPressed: () => _showDeleteConfirmation(c),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
