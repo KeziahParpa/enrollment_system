@@ -16,35 +16,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _handleLogin() {
+void _handleLogin() {
     final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text; // Get the password!
 
-    // 1. ADMIN CHECK
-    if (email == 'admin@isatu.edu') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
+    // 1. CHECK IF EMAIL EXISTS IN OUR "AUTH DATABASE"
+    if (!MockData.userCredentials.containsKey(email)) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account not found.'), backgroundColor: AppTheme.danger),
       );
       return;
     }
 
-    // 2. STUDENT CHECK
-    if (email.endsWith('@students.isatu.edu')) {
-      try {
-        final student = MockData.students.firstWhere((s) => s.email == email);
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => StudentDashboard(studentId: student.id),
-          ),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Student account not found in database.'), backgroundColor: AppTheme.danger),
-        );
-      }
+    // 2. CHECK IF PASSWORD MATCHES
+    if (MockData.userCredentials[email] != password) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Incorrect password.'), backgroundColor: AppTheme.danger),
+      );
       return;
+    }
+
+    // 3. IF PASSWORD IS CORRECT, ROUTE THEM:
+    if (email == 'admin@isatu.edu') {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+    } else {
+      // It's a student! Find their profile and log them in.
+      final student = MockData.students.firstWhere((s) => s.email == email);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => StudentDashboard(studentId: student.id)),
+      );
     }
 
     // 3. INVALID FORMAT

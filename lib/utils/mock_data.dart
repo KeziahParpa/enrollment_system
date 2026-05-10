@@ -5,7 +5,19 @@ import '../models/enrollment.dart';
 import '../models/department.dart'; 
 
 class MockData {
-  // 1. UPDATED STUDENTS LIST (Mapped to new programs)
+  // 1. MOCK AUTHENTICATION DATABASE
+  // This allows these specific emails to log in using the given passwords.
+  static final Map<String, String> userCredentials = {
+    'admin@isatu.edu': 'admin123',
+    'maria.santos@students.isatu.edu': 'password123',
+    'juan.delacruz@students.isatu.edu': 'password123',
+    'ana.reyes@students.isatu.edu': 'password123',
+    'carlos.mendoza@students.isatu.edu': 'password123',
+    'liza.garcia@students.isatu.edu': 'password123',
+    'ramon.torres@students.isatu.edu': 'password123',
+  };
+
+  // 2. UPDATED STUDENTS LIST (Mapped to new programs)
   static final List<Student> students = [
     Student(id: 'uid_1', studentId: '2024-0001', firstName: 'Maria', lastName: 'Santos', email: 'maria.santos@students.isatu.edu', phone: '09171234567', program: 'BS Computer Science', yearLevel: '3rd Year', gpa: 1.5),
     Student(id: 'uid_2', studentId: '2024-0002', firstName: 'Juan', lastName: 'dela Cruz', email: 'juan.delacruz@students.isatu.edu', phone: '09182345678', program: 'BS Information Technology', yearLevel: '2nd Year', gpa: 2.1),
@@ -15,7 +27,7 @@ class MockData {
     Student(id: 'uid_6', studentId: '2024-0006', firstName: 'Ramon', lastName: 'Torres', email: 'ramon.torres@students.isatu.edu', phone: '09226789012', program: 'Bachelor of Secondary Education', yearLevel: '3rd Year', gpa: 1.8),
   ];
 
-  // 2. UPDATED COURSES LIST (Mapped to new Department IDs)
+  // 3. UPDATED COURSES LIST (Mapped to new Department IDs)
   static final List<Course> courses = [
     Course(id: 'c_1', code: 'CS101', title: 'Introduction to Programming', instructorId: 'prof_1', schedule: 'MWF 7:30–9:00 AM', room: 'Lab 201', units: 3, currentCapacity: 38, maxCapacity: 40, departmentId: 'CCI', prerequisites: []),
     Course(id: 'c_2', code: 'CS201', title: 'Data Structures & Algorithms', instructorId: 'prof_2', schedule: 'TTH 10:30 AM–12:00 PM', room: 'Lab 203', units: 3, currentCapacity: 35, maxCapacity: 40, departmentId: 'CCI', prerequisites: ['CS101']),
@@ -26,7 +38,7 @@ class MockData {
     Course(id: 'c_7', code: 'AUTO101', title: 'Automotive Electrical Systems', instructorId: 'prof_7', schedule: 'Sat 8:00–12:00 PM', room: 'Shop A', units: 3, currentCapacity: 20, maxCapacity: 25, departmentId: 'CIT', prerequisites: []),
   ];
 
-  // 3. ENROLLMENTS LIST
+  // 4. ENROLLMENTS LIST
   static final List<Enrollment> enrollments = [
     Enrollment(id: 'e_1', studentId: 'uid_1', courseId: 'c_2', semester: '1st Sem 2024-2025', status: EnrollmentStatus.enrolled, dateRequested: DateTime(2024, 6, 10)),
     Enrollment(id: 'e_2', studentId: 'uid_3', courseId: 'c_3', semester: '1st Sem 2024-2025', status: EnrollmentStatus.pending, dateRequested: DateTime(2024, 6, 15)),
@@ -34,7 +46,7 @@ class MockData {
     Enrollment(id: 'e_4', studentId: 'uid_6', courseId: 'c_6', semester: '1st Sem 2024-2025', status: EnrollmentStatus.pending, dateRequested: DateTime(2024, 6, 16)),
   ];
 
-  // 4. THE CORRECTED DEPARTMENTS LIST
+  // 5. THE CORRECTED DEPARTMENTS LIST
   static final List<Department> departments = [
     Department(code: 'CAS', name: 'College of Arts and Sciences', dean: 'Dr. Maria Santos', totalStudents: 350, totalCourses: 20, color: const Color(0xFF2563AB)),
     Department(code: 'CEA', name: 'College of Engineering and Architecture', dean: 'Engr. Roberto Chan', totalStudents: 480, totalCourses: 28, color: const Color(0xFFD97706)),
