@@ -11,12 +11,30 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _emailNotifications = true;
-  bool _enrollmentAlerts = true;
-  bool _pendingApprovals = false;
-  bool _autoApprove = false;
-  String _semester = '1st Semester';
-  String _academicYear = '2024–2025';
+  // STATIC VARIABLES: These simulate a backend database! 
+  // Changes here will persist even when you change tabs.
+  static bool _emailNotifications = true;
+  static bool _enrollmentAlerts = true;
+  static bool _pendingApprovals = false;
+  static bool _autoApprove = false;
+  static String _semester = '1st Semester';
+  static String _academicYear = '2024–2025';
+  static String _schoolName = 'Iloilo Science and Technology University';
+  static String _maxStudents = '40';
+  static String _enrollmentDeadline = 'June 30, 2025';
+  static String _lateFee = '500';
+  static String _minUnits = '15';
+  static String _maxUnits = '24';
+
+  void _saveSettings(String section) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$section saved successfully!'), 
+        backgroundColor: AppTheme.success,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,25 +45,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const PageHeader(
-              title: 'Settings',
+              title: 'System Settings',
               subtitle: 'Manage system preferences and configurations',
             ),
             const SizedBox(height: 24),
+            // TWO-COLUMN DASHBOARD LAYOUT FOR PERFECT SIZING
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(flex: 2, child: _buildAcademicSettings()),
-                const SizedBox(width: 16),
-                Expanded(flex: 3, child: _buildNotificationSettings()),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 3, child: _buildEnrollmentSettings()),
-                const SizedBox(width: 16),
-                Expanded(flex: 2, child: _buildAdminProfile()),
+                // LEFT COLUMN
+                Expanded(
+                  child: Column(
+                    children: [
+                      _buildAcademicSettings(),
+                      const SizedBox(height: 24),
+                      _buildNotificationSettings(),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+                // RIGHT COLUMN
+                Expanded(
+                  child: Column(
+                    children: [
+                      _buildEnrollmentSettings(),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -73,14 +99,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             'Summer',
           ], (v) => setState(() => _semester = v!)),
           const SizedBox(height: 14),
-          _settingsTextField('School Name', 'EduEnroll University'),
+          _settingsTextField('School Name', _schoolName, (v) => _schoolName = v),
           const SizedBox(height: 14),
-          _settingsTextField('Max Students Per Section', '40'),
+          _settingsTextField('Max Students Per Section', _maxStudents, (v) => _maxStudents = v),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => _saveSettings('Academic Configuration'),
               child: const Text('Save Academic Settings'),
             ),
           ),
@@ -135,18 +161,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             (v) => setState(() => _autoApprove = v),
           ),
           const Divider(color: AppTheme.border, height: 24),
-          _settingsTextField('Enrollment Deadline', 'June 30, 2025'),
+          _settingsTextField('Enrollment Deadline', _enrollmentDeadline, (v) => _enrollmentDeadline = v),
           const SizedBox(height: 14),
-          _settingsTextField('Late Enrollment Fee (PHP)', '500'),
+          _settingsTextField('Late Enrollment Fee (PHP)', _lateFee, (v) => _lateFee = v),
           const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
-                child: _settingsTextField('Min Units per Semester', '15'),
+                child: _settingsTextField('Min Units per Semester', _minUnits, (v) => _minUnits = v),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _settingsTextField('Max Units per Semester', '24'),
+                child: _settingsTextField('Max Units per Semester', _maxUnits, (v) => _maxUnits = v),
               ),
             ],
           ),
@@ -154,94 +180,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => _saveSettings('Enrollment Policies'),
               child: const Text('Save Enrollment Policies'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAdminProfile() {
-    return _settingsCard(
-      title: 'Admin Profile',
-      icon: Icons.manage_accounts_rounded,
-      iconColor: const Color(0xFF7C3AED),
-      child: Column(
-        children: [
-          Center(
-            child: Stack(
-              children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'AD',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(
-                      Icons.edit_rounded,
-                      size: 12,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          _settingsTextField('Full Name', 'Administrator'),
-          const SizedBox(height: 12),
-          _settingsTextField('Email', 'admin@school.edu'),
-          const SizedBox(height: 12),
-          _settingsTextField('Role', 'System Administrator'),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              child: const Text('Update Profile'),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.danger,
-                side: const BorderSide(color: AppTheme.danger),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: Text(
-                'Change Password',
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
-              ),
             ),
           ),
         ],
@@ -256,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required Widget child,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(16),
@@ -276,18 +216,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Text(
                 title,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           child,
         ],
       ),
@@ -314,6 +254,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: AppTheme.textPrimary,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 subtitle,
                 style: GoogleFonts.plusJakartaSans(
@@ -324,16 +265,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
         ),
+        const SizedBox(width: 16),
         Switch(
           value: value,
           onChanged: onChanged,
-          activeThumbColor: AppTheme.primary,
+          activeColor: AppTheme.primary,
         ),
       ],
     );
   }
 
-  Widget _settingsTextField(String label, String initial) {
+  Widget _settingsTextField(String label, String initialValue, Function(String) onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -346,8 +288,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        TextField(
-          controller: TextEditingController(text: initial),
+        TextFormField(
+          initialValue: initialValue,
+          onChanged: onChanged,
           style: GoogleFonts.plusJakartaSans(fontSize: 13),
           decoration: InputDecoration(
             filled: true,
@@ -369,7 +312,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
-              vertical: 10,
+              vertical: 12,
             ),
           ),
         ),
@@ -396,7 +339,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         const SizedBox(height: 6),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           decoration: BoxDecoration(
             color: AppTheme.bgMain,
             borderRadius: BorderRadius.circular(10),
@@ -421,13 +364,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   )
                   .toList(),
               onChanged: onChanged,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
-                color: AppTheme.textPrimary,
-              ),
               icon: const Icon(
                 Icons.keyboard_arrow_down_rounded,
-                size: 18,
+                size: 20,
                 color: AppTheme.textSecondary,
               ),
             ),
