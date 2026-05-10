@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
 import '../models/student.dart';
-import '../widgets/status_badge.dart';
 import '../widgets/avatar_widget.dart';
 import '../widgets/page_header.dart';
 
@@ -16,7 +15,6 @@ class StudentsScreen extends StatefulWidget {
 
 class _StudentsScreenState extends State<StudentsScreen> {
   String _search = '';
-  EnrollmentStatus? _filterStatus;
   String? _filterProgram;
   List<Student> _students = [];
 
@@ -31,12 +29,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
       final matchSearch =
           _search.isEmpty ||
           s.fullName.toLowerCase().contains(_search.toLowerCase()) ||
-          s.id.contains(_search) ||
+          s.studentId.contains(_search) || // Uses the visible studentId now
           s.email.toLowerCase().contains(_search.toLowerCase());
-      final matchStatus = _filterStatus == null || s.status == _filterStatus;
       final matchProgram =
           _filterProgram == null || s.program == _filterProgram;
-      return matchSearch && matchStatus && matchProgram;
+      return matchSearch && matchProgram; // Removed status filter
     }).toList();
   }
 
@@ -109,16 +106,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        _buildDropdown<EnrollmentStatus?>(
-          value: _filterStatus,
-          hint: 'All Status',
-          items: [null, ...EnrollmentStatus.values],
-          label: (v) => v == null
-              ? 'All Status'
-              : v.name[0].toUpperCase() + v.name.substring(1),
-          onChanged: (v) => setState(() => _filterStatus = v),
         ),
         const SizedBox(width: 10),
         _buildDropdown<String?>(
@@ -233,12 +220,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   Widget _buildTableHeader() {
-    const headerStyle = TextStyle(
-      fontSize: 11,
-      fontWeight: FontWeight.w600,
-      color: AppTheme.textSecondary,
-      letterSpacing: 0.5,
-    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: const BoxDecoration(
@@ -265,7 +246,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               'PROGRAM',
               style: GoogleFonts.plusJakartaSans(
@@ -277,7 +258,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
             ),
           ),
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Text(
               'YEAR',
               style: GoogleFonts.plusJakartaSans(
@@ -291,19 +272,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
           Expanded(
             flex: 1,
             child: Text(
-              'SECTION',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textSecondary,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'STATUS',
+              'GPA', // Replaced Status with GPA
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -328,7 +297,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
           children: [
             AvatarWidget(
               initials: student.initials,
-              colorIndex: student.avatarColorIndex,
+              colorIndex: student.studentId.hashCode % 6, // Dynamically generate color based on ID
               size: 38,
             ),
             const SizedBox(width: 12),
@@ -346,7 +315,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     ),
                   ),
                   Text(
-                    '${student.id} · ${student.email}',
+                    '${student.studentId} · ${student.email}',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 11,
                       color: AppTheme.textSecondary,
@@ -356,7 +325,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ),
             ),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Text(
                 student.program.replaceFirst('BS ', ''),
                 style: GoogleFonts.plusJakartaSans(
@@ -367,7 +336,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ),
             ),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Text(
                 student.yearLevel,
                 style: GoogleFonts.plusJakartaSans(
@@ -379,14 +348,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
             Expanded(
               flex: 1,
               child: Text(
-                student.section,
+                student.gpa > 0 ? student.gpa.toStringAsFixed(2) : 'N/A',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 13,
-                  color: AppTheme.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primary,
                 ),
               ),
             ),
-            Expanded(flex: 2, child: StatusBadge(status: student.status)),
             SizedBox(
               width: 60,
               child: Row(
@@ -454,7 +423,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 children: [
                   AvatarWidget(
                     initials: student.initials,
-                    colorIndex: student.avatarColorIndex,
+                    colorIndex: student.studentId.hashCode % 6,
                     size: 56,
                     fontSize: 20,
                   ),
@@ -472,7 +441,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                           ),
                         ),
                         Text(
-                          student.id,
+                          student.studentId,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             color: AppTheme.textSecondary,
@@ -481,7 +450,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       ],
                     ),
                   ),
-                  StatusBadge(status: student.status),
                 ],
               ),
               const SizedBox(height: 24),
@@ -491,7 +459,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
               _detailRow(Icons.phone_rounded, 'Phone', student.phone),
               _detailRow(Icons.school_rounded, 'Program', student.program),
               _detailRow(Icons.layers_rounded, 'Year Level', student.yearLevel),
-              _detailRow(Icons.group_rounded, 'Section', student.section),
+              _detailRow(Icons.grade_rounded, 'GPA', student.gpa > 0 ? student.gpa.toStringAsFixed(2) : 'No Data Yet'),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -575,11 +543,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final lastCtrl = TextEditingController(text: existing?.lastName ?? '');
     final emailCtrl = TextEditingController(text: existing?.email ?? '');
     final phoneCtrl = TextEditingController(text: existing?.phone ?? '');
+    final gpaCtrl = TextEditingController(text: existing?.gpa.toString() ?? '0.0'); // Added GPA field
     String selectedProgram =
         existing?.program ?? MockData.students.first.program;
     String selectedYear = existing?.yearLevel ?? '1st Year';
-    EnrollmentStatus selectedStatus =
-        existing?.status ?? EnrollmentStatus.pending;
 
     showDialog(
       context: context,
@@ -612,7 +579,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _formField('Email Address', emailCtrl),
+                Row(
+                  children: [
+                    Expanded(flex: 2, child: _formField('Email Address', emailCtrl)),
+                    const SizedBox(width: 12),
+                    Expanded(flex: 1, child: _formField('Current GPA', gpaCtrl, isNumber: true)),
+                  ],
+                ),
                 const SizedBox(height: 12),
                 _formField('Phone Number', phoneCtrl),
                 const SizedBox(height: 12),
@@ -626,30 +599,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   onChanged: (v) => setDialogState(() => selectedProgram = v!),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _formDropdown<String>(
-                        label: 'Year Level',
-                        value: selectedYear,
-                        items: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
-                        onChanged: (v) =>
-                            setDialogState(() => selectedYear = v!),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _formDropdown<EnrollmentStatus>(
-                        label: 'Status',
-                        value: selectedStatus,
-                        items: EnrollmentStatus.values,
-                        onChanged: (v) =>
-                            setDialogState(() => selectedStatus = v!),
-                        itemLabel: (v) =>
-                            v.name[0].toUpperCase() + v.name.substring(1),
-                      ),
-                    ),
-                  ],
+                _formDropdown<String>(
+                  label: 'Year Level',
+                  value: selectedYear,
+                  items: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
+                  onChanged: (v) => setDialogState(() => selectedYear = v!),
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -667,40 +621,29 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {
-                        if (existing == null) {
-                          final newStudent = Student(
-                            id: '2024-${(_students.length + 1).toString().padLeft(4, '0')}',
-                            firstName: firstCtrl.text,
-                            lastName: lastCtrl.text,
-                            email: emailCtrl.text,
-                            phone: phoneCtrl.text,
-                            program: selectedProgram,
-                            yearLevel: selectedYear,
-                            section:
-                                '${selectedProgram.split(' ').last.substring(0, 2).toUpperCase()}-1A',
-                            status: selectedStatus,
-                            enrolledDate: DateTime.now(),
-                            avatarColorIndex: _students.length % 6,
-                          );
-                          setState(() => _students.add(newStudent));
-                        } else {
-                          final idx = _students.indexWhere(
-                            (s) => s.id == existing.id,
-                          );
-                          if (idx >= 0) {
-                            setState(() {
-                              _students[idx] = existing.copyWith(
-                                firstName: firstCtrl.text,
-                                lastName: lastCtrl.text,
-                                email: emailCtrl.text,
-                                phone: phoneCtrl.text,
-                                program: selectedProgram,
-                                yearLevel: selectedYear,
-                                status: selectedStatus,
-                              );
-                            });
+                        // Creating a fresh Student object to save
+                        final newStudent = Student(
+                          id: existing?.id ?? 'uid_${DateTime.now().millisecondsSinceEpoch}',
+                          studentId: existing?.studentId ?? '2024-${(_students.length + 1).toString().padLeft(4, '0')}',
+                          firstName: firstCtrl.text,
+                          lastName: lastCtrl.text,
+                          email: emailCtrl.text,
+                          phone: phoneCtrl.text,
+                          program: selectedProgram,
+                          yearLevel: selectedYear,
+                          gpa: double.tryParse(gpaCtrl.text) ?? 0.0,
+                        );
+
+                        setState(() {
+                          if (existing == null) {
+                            _students.add(newStudent);
+                          } else {
+                            final idx = _students.indexWhere((s) => s.id == existing.id);
+                            if (idx >= 0) {
+                              _students[idx] = newStudent;
+                            }
                           }
-                        }
+                        });
                         Navigator.pop(ctx);
                       },
                       child: Text(
@@ -717,7 +660,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
     );
   }
 
-  Widget _formField(String label, TextEditingController ctrl) {
+  Widget _formField(String label, TextEditingController ctrl, {bool isNumber = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -732,6 +675,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         const SizedBox(height: 6),
         TextField(
           controller: ctrl,
+          keyboardType: isNumber ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
           style: GoogleFonts.plusJakartaSans(fontSize: 13),
           decoration: InputDecoration(
             filled: true,

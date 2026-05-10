@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/student.dart';
+import '../models/enrollment.dart'; // Updated to the correct model
 import '../theme/app_theme.dart';
 
 class StatusBadge extends StatelessWidget {
@@ -58,6 +58,13 @@ class StatusBadge extends StatelessWidget {
           'dot': AppTheme.warning,
           'text': AppTheme.warning,
         };
+      case EnrollmentStatus.waitlisted: // Added new status
+        return {
+          'label': 'Waitlisted',
+          'bg': Colors.orange.withOpacity(0.12), // Using standard orange for waitlist
+          'dot': Colors.orange,
+          'text': Colors.orange,
+        };
       case EnrollmentStatus.dropped:
         return {
           'label': 'Dropped',
@@ -65,9 +72,9 @@ class StatusBadge extends StatelessWidget {
           'dot': AppTheme.danger,
           'text': AppTheme.danger,
         };
-      case EnrollmentStatus.graduated:
+      case EnrollmentStatus.completed: // Updated from graduated to completed
         return {
-          'label': 'Graduated',
+          'label': 'Completed',
           'bg': AppTheme.primaryLight.withOpacity(0.12),
           'dot': AppTheme.primaryLight,
           'text': AppTheme.primaryLight,
