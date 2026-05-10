@@ -25,8 +25,10 @@ class Course {
     this.prerequisites = const [],
   });
 
+  // I placed the getters right here!
   double get fillRate => maxCapacity == 0 ? 0 : currentCapacity / maxCapacity;
   bool get isFull => currentCapacity >= maxCapacity;
+  bool get hasSpace => currentCapacity < maxCapacity;
 
   // Convert Firestore Document to Dart Object
   factory Course.fromMap(Map<String, dynamic> map, String documentId) {
