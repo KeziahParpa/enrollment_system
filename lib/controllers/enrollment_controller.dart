@@ -52,14 +52,14 @@ class EnrollmentController {
 
   /// EXECUTION METHOD (ENROLL)
   /// Creates the link between Student and Course and updates capacity.
-  static void processEnrollment(Student student, Course course) {
+static void processEnrollment(Student student, Course course) {
     // 1. Create the new Enrollment record
     final newEnrollment = Enrollment(
       id: 'e_${DateTime.now().millisecondsSinceEpoch}',
       studentId: student.id,
       courseId: course.id,
       semester: '1st Sem 2026',
-      status: EnrollmentStatus.enrolled,
+      status: EnrollmentStatus.pending, // <-- UPDATED THIS TO PENDING!
       dateRequested: DateTime.now(),
     );
 

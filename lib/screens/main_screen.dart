@@ -229,7 +229,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           const SizedBox(width: 10),
           Text(
-            'ISATU Admin',
+            'ISATU Admin Portal',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w800,
