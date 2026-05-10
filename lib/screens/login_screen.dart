@@ -28,13 +28,11 @@ void _handleLogin() {
       return;
     }
 
-<<<<<<< HEAD
     // 2. CHECK IF PASSWORD MATCHES
     if (MockData.userCredentials[email] != password) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Incorrect password.'), backgroundColor: AppTheme.danger),
       );
-=======
     // 2. STUDENT CHECK
     if (email.endsWith('@students.isatu.edu')) {
       try {
@@ -54,7 +52,6 @@ void _handleLogin() {
           ),
         );
       }
->>>>>>> 5ac5acaf2047f30b6522c817e4f2ac195e025b10
       return;
     }
 
