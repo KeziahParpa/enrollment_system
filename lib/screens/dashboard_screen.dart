@@ -4,12 +4,19 @@ import '../theme/app_theme.dart';
 import '../utils/mock_data.dart';
 import '../models/student.dart';
 import '../models/enrollment.dart';
+import '../controllers/enrollment_controller.dart'; // Needed for bulk approval
 import '../widgets/stat_card.dart';
 import '../widgets/status_badge.dart';
 
-class DashboardScreen extends StatelessWidget {
+// CHANGED TO STATEFUL WIDGET TO FIX CONTEXT ERROR AND ALLOW UI UPDATES
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -21,7 +28,6 @@ class DashboardScreen extends StatelessWidget {
           const SizedBox(height: 24),
           _buildStatCards(),
           const SizedBox(height: 24),
-          // Removed Pie Chart and Bar Chart as requested
           _buildMasterEnrollmentList(), 
         ],
       ),
@@ -93,7 +99,7 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildMasterEnrollmentList() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(16),
@@ -102,47 +108,44 @@ class DashboardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Master Enrollment List',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Master Enrollment List', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800)),
+              
+              // --- THE WORKING ADMIN POWER TOOL ---
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Wrapped in setState to refresh the list instantly
+                  setState(() {
+                    int approvedCount = EnrollmentController.approveAllPending();
+                    
+                    // Context works perfectly here now!
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Success! $approvedCount pending enrollments approved.'),
+                        backgroundColor: AppTheme.success,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  });
+                },
+                icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+                label: const Text('Approve All Pending'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.success,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           const Row(
             children: [
-              Expanded(
-                flex: 2,
-                child: Text(
-                  'STUDENT',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  'COURSE',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  'STATUS',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ),
+              Expanded(flex: 2, child: Text('STUDENT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppTheme.textSecondary))),
+              Expanded(child: Text('COURSE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppTheme.textSecondary))),
+              Expanded(child: Text('STATUS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppTheme.textSecondary))),
             ],
           ),
           const Divider(height: 24),
@@ -159,22 +162,8 @@ class DashboardScreen extends StatelessWidget {
               );
               return Row(
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      s.fullName,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      e.courseId,
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ),
+                  Expanded(flex: 2, child: Text(s.fullName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
+                  Expanded(child: Text(e.courseId, style: const TextStyle(fontSize: 13))),
                   Expanded(child: StatusBadge(status: e.status)),
                 ],
               );

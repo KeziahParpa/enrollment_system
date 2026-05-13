@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../widgets/page_header.dart';
+import '../controllers/enrollment_controller.dart'; // REQUIRED FOR GLOBAL SETTINGS
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,7 +17,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static bool _emailNotifications = true;
   static bool _enrollmentAlerts = true;
   static bool _pendingApprovals = false;
-  static bool _autoApprove = false;
   static String _semester = '1st Semester';
   static String _academicYear = '2024–2025';
   static String _schoolName = 'Iloilo Science and Technology University';
@@ -24,7 +24,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static String _enrollmentDeadline = 'June 30, 2025';
   static String _lateFee = '500';
   static String _minUnits = '15';
-  static String _maxUnits = '24';
 
   void _saveSettings(String section) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -154,11 +153,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       iconColor: AppTheme.success,
       child: Column(
         children: [
+          // WIRED TO GLOBAL SETTINGS
           _toggleRow(
             'Auto-Approve Enrollments',
             'Automatically approve new enrollment requests without manual review',
-            _autoApprove,
-            (v) => setState(() => _autoApprove = v),
+            SystemSettings.autoApprove,
+            (v) => setState(() => SystemSettings.autoApprove = v),
           ),
           const Divider(color: AppTheme.border, height: 24),
           _settingsTextField('Enrollment Deadline', _enrollmentDeadline, (v) => _enrollmentDeadline = v),
@@ -171,8 +171,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: _settingsTextField('Min Units per Semester', _minUnits, (v) => _minUnits = v),
               ),
               const SizedBox(width: 12),
+              // WIRED TO GLOBAL SETTINGS
               Expanded(
-                child: _settingsTextField('Max Units per Semester', _maxUnits, (v) => _maxUnits = v),
+                child: _settingsTextField('Max Units per Semester', SystemSettings.maxUnits.toString(), (v) {
+                  if (int.tryParse(v) != null) SystemSettings.maxUnits = int.parse(v);
+                }),
               ),
             ],
           ),

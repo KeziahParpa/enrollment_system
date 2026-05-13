@@ -15,6 +15,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isHovering = false; // Controls the hover state
 
   void _handleLogin() {
     final email = _emailController.text.trim().toLowerCase();
@@ -90,7 +91,6 @@ class _LoginScreenState extends State<LoginScreen> {
             image: const AssetImage('assets/isatu_bg.jpeg'),
             fit: BoxFit.cover,
             // --- ADJUST TRANSPARENCY HERE ---
-            // 0.1 is very light, 0.5 is more visible.
             colorFilter: ColorFilter.mode(
               Colors.white.withOpacity(0.3), 
               BlendMode.dstATop,
@@ -166,6 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
                   TextField(
                     controller: _emailController,
+                    textInputAction: TextInputAction.next, // Moves to next field on Enter
                     decoration: InputDecoration(
                       hintText: 'Username or ISAT U email',
                       filled: true,
@@ -187,6 +188,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextField(
                     controller: _passwordController,
                     obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _handleLogin(), // TRIGGERS LOGIN ON ENTER
                     decoration: InputDecoration(
                       hintText: 'Password',
                       filled: true,
@@ -196,22 +199,35 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: _handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text(
-                        'Sign In', 
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15, 
-                          fontWeight: FontWeight.w600, 
-                          color: Colors.white
-                        )
+                  
+                  // CUSTOM HOVER "SIGN IN" BUTTON
+                  MouseRegion(
+                    onEnter: (_) => setState(() => _isHovering = true),
+                    onExit: (_) => setState(() => _isHovering = false),
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: _handleLogin,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: double.infinity,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: _isHovering ? AppTheme.primaryLight : AppTheme.primary,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: _isHovering 
+                            ? [BoxShadow(color: AppTheme.primaryLight.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))]
+                            : [],
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Sign In', 
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 15, 
+                              fontWeight: FontWeight.w600, 
+                              color: Colors.white
+                            )
+                          ),
+                        ),
                       ),
                     ),
                   ),
